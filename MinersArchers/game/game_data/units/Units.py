@@ -3,13 +3,16 @@ from abc import ABC, abstractmethod
 
 # interface of Unit
 class Unit(ABC):
-    def __init__(self, inp_player, inp_level=1):
+    def __init__(self, inp_player, inp_level=0):
         self.player = inp_player
         self.level = inp_level
 
     @abstractmethod
     def action(self):
         raise NotImplementedError()
+
+    def set_level(self, lvl):
+        self.level = lvl
 
     # drawing
     def render(self):
@@ -87,43 +90,31 @@ class Miner(Unit):
 class UCI(ABC):
     # параметризованный фабричный метод `create_unit`
     @abstractmethod
-    def create_unit(self):
+    def create_unit(self, inp_type, inp_player):
         raise NotImplementedError()
 
 
-class WarCreator(UCI):
-    def create_unit(self, inp_player, lvl):
-        return Warrior(inp_player, lvl)
-
-
-class ArchCreator(UCI):
-    def create_unit(self, inp_player, lvl):
-        return Archer(inp_player, lvl)
-
-
-class MinCreator(UCI):
-    def create_unit(self, inp_player, lvl):
-        return Miner(inp_player, lvl)
-
-
-class App:
-    def initialize(self, inp_type, lvl, inp_player):
+class Creator(UCI):
+    def create_unit(self, inp_type, inp_player):
         if inp_type == "warriors":
-            return WarCreator(inp_player, lvl)
+            return Warrior(inp_player)
 
         if inp_type == "archers":
-            return ArchCreator(inp_player, lvl)
+            return Archer(inp_player)
 
         if inp_type == "miners":
-            return MinCreator(inp_player, lvl)
+            return Miner(inp_player)
+
 
 # как взаимодействовать с units
 # from game.game_data import units
 #
 # app = units.CreateUnit()
 #
-# war1 = app.create_unit('warriors', 1, 'vanya')
-# war2 = app.create_unit('archers', 2,  'egor')
+
+# war1 = Creator.create_unit('warriors', 'vanya')
+# war2 = Creator.create_unit('archers', 'egor')
+
 #
 # war1.action(war2)
 #

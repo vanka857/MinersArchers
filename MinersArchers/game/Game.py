@@ -8,13 +8,14 @@ class Game:
     __event_dispatcher = 0
     __display = 0
 
-    def __init__(self):
+    def __init__(self, w=5, h=5):
         # пока что реализуем консольный вывод и консольный ввод
-        #self.__display = ConsoleDisplay()
+        self.__display = ConsoleDisplay(w, h)
         self.__event_dispatcher = ConsoleDispatcher()
-        self.__game_data = Data()
+        self.__game_data = Data(w, h)
 
-    # возвращает кортеж, на первом месте первая буква команды, далее координаты
+    # возвращает полную команду
+
     def get_console_command(self):
         res = self.__event_dispatcher.step()
 
