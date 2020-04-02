@@ -3,6 +3,7 @@ from game.dispatcher.Dispatcher import Dispatcher
 
 class ConsoleDispatcher(Dispatcher):
     def __init__(self):
+        super().__init__()
         print("Console Dispatcher is ready!")
 
     def get_command(self):
@@ -33,6 +34,9 @@ class ConsoleDispatcher(Dispatcher):
             creation = input()
 
         return creation
+
+    def check_new_commands(self):
+        return True, (self.step(),)
 
     # основной ход
     def step(self):

@@ -1,20 +1,35 @@
-from game.game_data.field.Field import Field
-import game.game_data.units.Units as u
+import game.game_data.units.Units as unit
+import game.game_data.cells.Cell as cell
 
 
 class Data:
+    __width = 0
+    __height = 0
+
     def __init__(self, w, h):
-        self.units_id = {}
-        self.field = dict()
+        self.__width = w
+        self.__height = h
+        self.__units_id = {}
+        self.__cells = [[]]
 
         print('Creating game data:')
 
-        C = u.Creator()
+        unit_creator = unit.Creator()
         for i in range(w * h):
-            self.units_id[i] = C.create_unit("warriors", "vanya")
+            self.__units_id[i] = unit_creator.create_unit("warriors", "vanya")
         for i in range(w * h):
-            self.units_id[i] = C.create_unit("warriors", "egor")
+            self.__units_id[i] = unit_creator.create_unit("warriors", "egor")
+
+        for i in range(h):
+            self.__cells.append([])
+            for j in range(w):
+                self.__cells[i].append([])
+                self.__cells[i][j] = cell.Cell()
 
     # возвращает размеры поля
-    def size_field(self):
-        pass
+    def get_size_field(self):
+        return {self.__width, self.__height}
+
+    def create_data_to_display(self):
+        return self.__cells
+

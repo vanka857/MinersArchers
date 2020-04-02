@@ -8,7 +8,7 @@ class Unit(ABC):
         self.level = inp_level
 
     @abstractmethod
-    def action(self):
+    def action(self, **kwargs):
         raise NotImplementedError()
 
     def set_level(self, lvl):
@@ -22,7 +22,7 @@ class Unit(ABC):
     def say(self):
         raise NotImplementedError()
 
-
+'''
 # наивная реализация столкновения двух армий(кто меньше, то проигрывает)
 def units_fight(unit1, unit2):
     assert unit1.player != unit2.player
@@ -34,6 +34,7 @@ def units_fight(unit1, unit2):
         unit2.level -= unit1.level
         unit1.level = 0
         return False
+'''
 
 
 # concrete units
@@ -41,10 +42,11 @@ class Warrior(Unit):
     type = "warriors"
 
     def action(self, enemy):
-        if units_fight(self, enemy):
+        pass
+        '''if units_fight(self, enemy):
             print("We have won!")
         else:
-            print("We have lost!")
+            print("We have lost!")'''
 
     def render(self):
         return "Wa{} ".format(self.level)
@@ -57,10 +59,12 @@ class Archer(Unit):
     type = "archers"
 
     def action(self, enemy):
+        pass
+        '''
         if units_fight(self, enemy):
             print("We have won!")
         else:
-            print("We have lost!")
+            print("We have lost!")'''
 
     def render(self):
         return "Ar{} ".format(self.level)
