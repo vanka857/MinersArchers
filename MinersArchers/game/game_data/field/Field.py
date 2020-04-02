@@ -1,4 +1,6 @@
 class Field:
+    cells = ()
+    def __init__(self, w, h):
 
-    def __init__(self):
+
         print('Game Field Created!')
