@@ -15,6 +15,7 @@ class Game:
         self.__game_data = Data(w, h)
 
     # возвращает полную команду
+
     def get_console_command(self):
         res = self.__event_dispatcher.step()
 

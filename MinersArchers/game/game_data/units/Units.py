@@ -111,8 +111,10 @@ class Creator(UCI):
 #
 # app = units.CreateUnit()
 #
+
 # war1 = Creator.create_unit('warriors', 'vanya')
 # war2 = Creator.create_unit('archers', 'egor')
+
 #
 # war1.action(war2)
 #
