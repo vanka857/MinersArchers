@@ -1,3 +1,0 @@
-# MinersArchers
-Game
-![screenshot of sample](https://psv4.userapi.com/c856320/u172548857/docs/d4/c814fcad5065/PythonGame_1.png?extra=aszJHqimKjjIXh8Hu5ymFx6YcO5XKcqLxUgwjjqCC7H_DOZ0aXffBigXlViOeEfAH2khQ0UsbdadiClqCnIhSIogCD-KRRBt9f37nO40Hi7Gtu8mwf2MpiKLhcqgs8uDia0LWBOi5IG16yU6-mswpUGa)
