@@ -45,7 +45,7 @@ class Barrack(Building):
 class Mines(Building):
     def __init__(self, inp_player):
         super().__init__(inp_player)
-    building_type = "barrack"
+    building_type = "mines"
 
 
 class UCI(ABC):
