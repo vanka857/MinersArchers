@@ -49,15 +49,15 @@ class ConsoleDispatcher(Dispatcher):
             return "create", x[0], x[1], creation
 
         elif command == "attack":
-            print("from (..,..) and to (..,..)")
+            print("from (..,..) and the (..,..)")
             attack = self.get_coords(4)
-            print("You are going to attack the ({}, {}) from ({}, {})".format(attack[0], attack[1], attack[2], attack[3]))
+            print("You are going to attack from ({}, {}) the ({}, {})".format(attack[0], attack[1], attack[2], attack[3]))
             return "attack", attack[0], attack[1], attack[2], attack[3]
 
         elif command == "move":
             print("from (..,..) and to (..,..)")
             move = self.get_coords(4)
-            print("You are going to attack the ({}, {}) to ({}, {})".format(move[0], move[1], move[2], move[3]))
+            print("You are going to move from ({}, {}) to ({}, {})".format(move[0], move[1], move[2], move[3]))
             return "move", move[0], move[1], move[2], move[3]
 
         elif command == "upgrade":

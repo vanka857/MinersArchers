@@ -1,5 +1,5 @@
 from game.Game import Game
 
 game = Game()
-print("-------------")
+print("")
 game.start()
