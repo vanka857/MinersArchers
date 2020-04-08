@@ -36,6 +36,9 @@ class Controller:
             elif command[0] == "upgrade":
                 return self.upgrade(command)
 
+            else:
+                pass
+
     def create(self, command, name):
         # если на этой позиции уже кто-то есть
         if self.__game_data.units[int(command[1]), int(command[2])].level > 0:

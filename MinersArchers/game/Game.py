@@ -1,7 +1,11 @@
+# coding=utf-8
 from game.display.ConsoleDisplay import ConsoleDisplay
 from game.dispatcher.ConsoleDispatcher import ConsoleDispatcher
 from game.game_data.Data import Data
-from game.GameControl.Controller import Controller
+from game.game_control.Controller import Controller
+from game.game_data.PyGame import PyGame
+from game.display.PyGameDisplay import PyGameDisplay
+from game.dispatcher.PyGameDispatcher import PyGameDispatcher
 
 
 class Game:
@@ -11,19 +15,39 @@ class Game:
     __display = 0
     __running = True
 
-    def __init__(self, w=5, h=5):
-        # console output
-        self.__display = ConsoleDisplay(w, h)
-        self.__event_dispatcher = ConsoleDispatcher()
+    # игроки
+    __players = ["ivan", "egor"]
+    # id игрока
+    __current_player = 0
+
+    def __init__(self, mode="console", w=5, h=5):
+        if mode == "py_game":
+            self.__py_game = PyGame()
+            self.__display = PyGameDisplay(self.__py_game, w, h)
+            self.__event_dispatcher = PyGameDispatcher(self.__py_game)
+        else:
+            # console output
+            self.__display = ConsoleDisplay(w, h)
+            self.__event_dispatcher = ConsoleDispatcher()
+
         self.__game_data = Data(w, h)
         # у контроллера есть все данные об игре
         self.__game_control = Controller(self.__game_data)
 
     def __do_action(self, command, name):
-        if command[0] == "quit":
+        if command == "quit":
+            # завершение программы
             self.__running = False
         else:
+            # передача управления в контроллер
             self.__game_control.main_control(command, name)
+
+    def __change_player(self):
+        # игроки делают ходу по кругу
+        self.__current_player = (self.__current_player + 1) % len(self.__players)
+
+    def __get_player(self, id_):
+        return self.__players[id_]
 
     # начало игры
     def start(self):
@@ -33,15 +57,19 @@ class Game:
         # просто передача ссылки
         self.__display.update()
 
-        count_steps = 0
-        # игроки ходят по очереди 0 и 1
         while self.__running:
-            count_steps = 1 - count_steps
+            # Для вывода имени игрока, который ходит в данный момент
+            print(self.__get_player(self.__current_player), end=', ')
             has_new_commands, commands = self.__event_dispatcher.check_new_commands()
             # если есть новые команды
             if has_new_commands:
                 for command in commands:
-                    self.__do_action(command, count_steps * "egor" + (1 - count_steps) * "ivan")
+                    self.__do_action(command, self.__get_player(self.__current_player))
+
+                    # ЕГОР, вот здесь нао сделать проверку, завершен ли ход
+                    if "ход завершен":
+                        # когда ход игрока закончен, меняем текущего игрока
+                        self.__change_player()
 
                 self.__display.update()
 
