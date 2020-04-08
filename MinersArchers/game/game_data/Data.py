@@ -5,6 +5,8 @@ import game.game_data.cells.Cell as cell
 class Data:
     __width = 0
     __height = 0
+    units = None
+    _cells = None
 
     def __init__(self, w, h):
         self.__width = w

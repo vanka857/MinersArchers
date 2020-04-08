@@ -17,9 +17,5 @@ class Display(ABC):
     def set_data(self, data):
         raise NotImplementedError()
 
-    # для задержки основного цикла. На данный момент это костыль. Потом будет сделано через таймер между фреймами
-    def wait(self, time=50):
-        pass
-
 
 
