@@ -1,12 +1,19 @@
-from game.display.Display import Display
+import pygame
 import random
+
+from game.display.Display import Display
+# <<<<<<< dev_ivan2
+# from game.game_data import PyGame
+# =======
 from game.game_data.PyGame import PyGame
 from game.game_data.units.Units import Unit
-import pygame
+from game.logs.Logs import Logs
+
+log = Logs("Yellow")
 
 # размер одной ячейки(квадратной) в пикселях
-CELL_SIZE = 200
-UNIT_SIZE = 100
+CELL_SIZE = PyGame.CELL_SIZE
+UNIT_SIZE = PyGame.UNIT_SIZE
 
 
 class PyGCells:
@@ -145,15 +152,16 @@ class PyGameDisplay(Display):
 
     field_created = False
 
-    def __init__(self, py_game_, w, h):
+    def __init__(self, py_game_, w, h, queue=None):
         super().__init__()
         self.data = None
+        self.queue = queue
         self.py_game = py_game_
         self.w = w * CELL_SIZE
         self.h = h * CELL_SIZE
         self.py_game.init_screen(self.w, self.h)
         self.screen = self.py_game.get_screen()
-        print('PyGame Display created!')
+        log.print('PyGame Display created!')
 
     def set_data(self, data):
         self.data = data
@@ -162,10 +170,16 @@ class PyGameDisplay(Display):
         return self.py_game.get_screen()
 
     def update(self):
+
+        if len(self.queue) > 0:
+            log.print('got some commands: ', end='')
+            log.print(self.queue)
+            self.queue.popleft()
+
         if True:
             self.draw()
         self.py_game.update_display()
-        print('Display updated')
+        #log.print('Display updated')
 
     def draw(self):
         if not self.field_created:

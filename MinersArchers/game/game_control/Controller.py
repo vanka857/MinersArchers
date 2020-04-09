@@ -10,6 +10,10 @@ class Controller:
 
     # последний элемент списка должен быть именем игрока
     def main_control(self, command, name_of_player):
+
+        print("main controller got command:" + str(command))
+
+        # провера на то, что не залезаем за края
         h1 = int(command[1])
         w1 = int(command[2])
 
@@ -70,7 +74,7 @@ class Controller:
 
         if self.__game_data.units[(h2, w2)].get_level == 0:
             # если на той позиции никого нет, просто переносим отряд
-            self.move(command, name)
+            self.move(command)
         else:
             # иначе все сделано по правилам и можем нападать
             # пока считаем, что можем ходить только в 4 стороны
@@ -106,12 +110,7 @@ class Controller:
         h2 = int(command[3])
         w2 = int(command[4])
 
-        if h2 >= self.__game_data.get_size_field()[0] or w2 >= self.__game_data.get_size_field()[1] \
-                or h2 < 0 or w2 < 0:
-            print("You are out of the field! Check coordinates!")
-            return 1
-
-        # дома не двигаем
+        # шахтеров не двигаем
         if self.__game_data.units[(h2, w2)].type == "miners":
             print("You can't move miners!")
             return 1
