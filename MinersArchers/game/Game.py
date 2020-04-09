@@ -12,7 +12,9 @@ from game.display.PyGameDisplay import PyGameDisplay
 from game.dispatcher.PyGameDispatcher import PyGameDispatcher
 from game.logs.Logs import Logs
 
+# устанавливаем цвет логов
 log = Logs()
+
 
 class Game:
     __game_control = 0
@@ -26,19 +28,25 @@ class Game:
     # id игрока
     __current_player = 0
 
-    FRAME_TIME = 50
+    FRAME_TIME = 400
 
     def __init__(self, mode="console", w=5, h=5):
         self.__mode = mode
         if mode == "py_game":
+            # создаем очередь сообщения для прямой отправки от PyGameDispatcher в PyGameDisplay команд типа "select"
             self.pyg_message_queue = deque()
+
+            # создаем god-object для работы с pygame
             self.__py_game = PyGame()
+
             self.__display = PyGameDisplay(self.__py_game, w, h, self.pyg_message_queue)
             self.__event_dispatcher = PyGameDispatcher(self.__py_game, self.pyg_message_queue)
+
         elif mode == "console":
             # console output
             self.__display = ConsoleDisplay(w, h)
             self.__event_dispatcher = ConsoleDispatcher()
+
         else:
             log.print("Incorrect init!")
             raise Exception
@@ -65,6 +73,7 @@ class Game:
 
     # начало игры
     def start(self):
+        log.print("-------------------------------------------------------------------")
         log.print("Game has started!")
 
         # пока что Draw видит все поле
@@ -82,11 +91,15 @@ class Game:
 
                     # если контроллер вернул 0, все хорошо, меняем игрока, иначе цикл повторяется с тем же игроком
                     if self.__do_action(command, self.__get_player(self.__current_player)) == 0:
-                      
+
+                        # перерисовка поля
+                        self.__display.draw()
+
                         # когда ход игрока закончен, меняем текущего игрока
                         self.__change_player()
                         log.print("player changed to:" + self.__get_player(self.__current_player))
 
+            # для вызова self.__display.update() не чаще, чем каждые self.FRAME_TIME миллисекунд
             current_time = time.time()
             if (current_time - last_frame_time) * 1000 > self.FRAME_TIME:
                 last_frame_time = current_time

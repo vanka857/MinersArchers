@@ -19,7 +19,7 @@ class Data:
         self.score_player_1 = 0
         self.score_player_2 = 0
 
-        print('Creating game data:')
+        # print('Creating game data:')
 
         # сделаем мертвого юнита, на которого будем ссылаться при удалении
         # у него особый игрок died и уровень - 0

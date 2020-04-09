@@ -2,13 +2,11 @@ import pygame
 import random
 
 from game.display.Display import Display
-# <<<<<<< dev_ivan2
-# from game.game_data import PyGame
-# =======
-from game.game_data.PyGame import PyGame
+from game.game_data import PyGame
 from game.game_data.units.Units import Unit
 from game.logs.Logs import Logs
 
+# устанавливаем цвет логов
 log = Logs("Yellow")
 
 # размер одной ячейки(квадратной) в пикселях
@@ -133,6 +131,7 @@ class PyGUnit(pygame.sprite.Sprite):
             external = pygame.image.load("Frame_unit.png").convert()
             self.surf.blit(external, (UNIT_SIZE * 0, UNIT_SIZE * 0))
 
+
 class PyGBuilding(pygame.sprite.Sprite):
     pass
 
@@ -172,24 +171,23 @@ class PyGameDisplay(Display):
     def update(self):
 
         if len(self.queue) > 0:
-            log.print('got some commands: ', end='')
-            log.print(self.queue)
+            log.print('got some commands: ' + str(*self.queue))
             self.queue.popleft()
 
-        if True:
-            self.draw()
-        self.py_game.update_display()
-        #log.print('Display updated')
-
-    def draw(self):
         if not self.field_created:
+            self.draw()
             self.field_created = True
-            self.create_field_layer()
-            self.create_units_layer()
 
         self.screen.fill((255, 255, 255))
         self.screen.blit(self.__field_layer, (0, 0))
         self.screen.blit(self.__units_layer, (0, 0))
+
+        self.py_game.update_display()
+        #log.print('Display updated')
+
+    def draw(self):
+        self.create_field_layer()
+        self.create_units_layer()
 
     def create_units_layer(self):
         if self.data is None:

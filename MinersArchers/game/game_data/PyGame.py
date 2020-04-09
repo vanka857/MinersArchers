@@ -44,22 +44,3 @@ class PyGame:
     def update_display(self):
         # Flip the display
         pygame.display.flip()
-
-    # def check_new_commands(self) -> 'has_new_commands, commands':
-    #     # нуждается в доработке. сейчас передает все команды наверх, а должен часть из них обрабатывать самостоятельно
-    #     result = list()
-    #     has_new_commands = False
-    #     for event in pygame.event.get():
-    #         if event.type == pygame.QUIT:
-    #             print("____________'quit' command")
-    #             result.append(("quit"))
-    #             has_new_commands = True
-    #         if event.type == pygame.KEYDOWN:
-    #             print("____________keydown")
-    #         if event.type == pygame.MOUSEBUTTONDOWN:
-    #             print("____________mouse button pressed: " + str(event.button))
-    #             if event.button == 1 or event.button == 3:
-    #                 result.append(("select", event.pos[0], event.pos[1]))
-    #                 has_new_commands = True
-    #
-    #     return has_new_commands, result

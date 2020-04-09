@@ -1,6 +1,11 @@
 import game.game_data.units.Units as unit
 import math
 
+from game.logs.Logs import Logs
+
+# устанавливаем цвет логов
+log = Logs("Green")
+
 
 class Controller:
     __game_data = 0
@@ -11,7 +16,7 @@ class Controller:
     # последний элемент списка должен быть именем игрока
     def main_control(self, command, name_of_player):
 
-        print("main controller got command:" + str(command))
+        log.print("main controller got command:" + str(command))
 
         # провера на то, что не залезаем за края
         h1 = int(command[1])
@@ -20,11 +25,11 @@ class Controller:
         # провера на то, что не залезаем за края
         if h1 >= self.__game_data.get_size_field()[0] or w1 >= self.__game_data.get_size_field()[1] \
                 or h1 < 0 or w1 < 0:
-            print("You are out of the field! Check coordinates!")
+            log.print("You are out of the field! Check coordinates!")
             return 1
 
         if name_of_player != self.__game_data.units[h1, w1].player and self.__game_data.units[h1, w1].player != "died":
-            print("You can't do it! It is not your cell or union!")
+            log.print("You can't do it! It is not your cell or union!")
             return 1
 
         else:
@@ -46,7 +51,7 @@ class Controller:
     def create(self, command, name):
         # если на этой позиции уже кто-то есть
         if self.__game_data.units[int(command[1]), int(command[2])].get_level() > 0:
-            print("You can upgrade your unit!")
+            log.print("You can upgrade your unit!")
             return 1
         else:
             # установим тип из command и левел 1
@@ -64,12 +69,12 @@ class Controller:
 
         if h2 >= self.__game_data.get_size_field()[0] or w2 >= self.__game_data.get_size_field()[1] \
                 or h2 < 0 or w2 < 0:
-            print("You are out of the field! Check coordinates!")
+            log.print("You are out of the field! Check coordinates!")
             return 1
 
         # если пытаемся напасть на себя же
         if self.__game_data.units[(h2, w2)].player == name:
-            print("You are trying to attack yourself!")
+            log.print("You are trying to attack yourself!")
             return 1
 
         if self.__game_data.units[(h2, w2)].get_level == 0:
@@ -79,7 +84,7 @@ class Controller:
             # иначе все сделано по правилам и можем нападать
             # пока считаем, что можем ходить только в 4 стороны
             if math.fabs(h1 - h2) + math.fabs(w1 - w2) > 1:
-                print("You can go only up, down, left and right!")
+                log.print("You can go only up, down, left and right!")
                 return 1
             # unit1 - нападает, unit2 - защищается
 
@@ -112,21 +117,21 @@ class Controller:
 
         # шахтеров не двигаем
         if self.__game_data.units[(h2, w2)].type == "miners":
-            print("You can't move miners!")
+            log.print("You can't move miners!")
             return 1
 
         if math.fabs(h1 - h2) + math.fabs(w1 - w2) > 1:
-            print("You can go only up, down, left and right!")
+            log.print("You can go only up, down, left and right!")
             return 1
 
         if h2 >= self.__game_data.get_size_field()[0] or w2 >= self.__game_data.get_size_field()[1] \
                 or h2 < 0 or w2 < 0:
-            print("You are out of the field! Check coordinates!")
+            log.print("You are out of the field! Check coordinates!")
             return 1
 
         # если там уже кто-то есть
         if self.__game_data.units[(h2, w2)].get_level() > 0:
-            print("You can only attack this unit!")
+            log.print("You can only attack this unit!")
             return 1
 
         else:
@@ -148,7 +153,7 @@ class Controller:
 
         # если на этой позиции уже кто-то есть
         if self.__game_data.units[(h1, w1)].get_level() > 0:
-            print("You can upgrade your unit!")
+            log.print("You can upgrade your unit!")
             return 1
         else:
             # установим тип из command и левел 1

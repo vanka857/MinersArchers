@@ -19,5 +19,9 @@ class Display(ABC):
     def set_data(self, data):
         raise NotImplementedError()
 
+    @abstractmethod
+    def draw(self):
+        pass
+
 
 

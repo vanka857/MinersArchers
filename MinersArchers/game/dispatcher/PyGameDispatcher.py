@@ -18,6 +18,7 @@ from pygame.locals import (
 
 from game.logs.Logs import Logs
 
+# устанавливаем цвет логов
 log = Logs("Cyan")
 
 
@@ -41,7 +42,6 @@ class PyGameDispatcher(Dispatcher):
         log.print('PyGame Dispatcher created!')
 
     available_key_commands = {K_c: "create", K_a: "attack", K_b: "build", K_m: "move", K_u: "upgrade"}
-    n_of_args = {"create": 1, "move": 2, "attack": 2, "upgrade": 1, "build": 1}
 
     def check_new_commands(self) -> 'has_new_commands, commands':
         result = list()
@@ -55,26 +55,27 @@ class PyGameDispatcher(Dispatcher):
 
             if event.type == pygame.KEYDOWN:
                 # log.print_("____________keydown")
-                # если ждем ввода команды
+
+                # если ждем ввода команды and если нажата допустимая клавиша
                 if self.command.status == "command" and event.key in self.available_key_commands:
                     log.print("key command got")
-                    # то вводим команду
+
+                    # получаем имя команды по нажатой кнопке
                     command = self.available_key_commands[event.key]
+
+                    # устанавливаем команду
                     self.command.set_command(command)
-                    # если нам нужно две координаты
-                    if self.n_of_args[command] == 2:
-                        # то ждем вторую координату
-                        self.command.wait("coords")
-                    else:
-                        # если получили вторую координаты, то завершаем создание команды
-                        self.command.status = "maked"
 
                 if event.key == K_SPACE and self.command.status == "maked":
                     log.print("key command sent")
-                    # отправить команду
+
+                    # отправить команду (к результату работы всей функции check_new_commands())
+                    # это жопный код, не разбирайся
                     has_new_commands = True
                     all_coords = list(all_elements(self.command.coords))
                     result.append((self.command.command, *all_coords))
+
+                    # когда отправили команду, её можно сбросить
                     self.command.clear()
 
                 if event.key == K_ESCAPE:
@@ -85,15 +86,19 @@ class PyGameDispatcher(Dispatcher):
             if event.type == pygame.MOUSEBUTTONDOWN:
                 # log.print_("____________mouse button pressed: " + str(event.button))
                 if event.button == 1 or event.button == 3:
-                    # если нет текущей команды
-                    if self.command.status == "coords":
-                        # вставляем текущие координаты
-                        selected_object = PyGame.get_object_on_coords(event.pos[0], event.pos[1])
-                        log.print("selecting: " + str(selected_object))
-                        self.command.append_coords(selected_object[0])
-                        self.command.wait("command")
+                    # получаем координаты игрового поля и тип объекта, который был выбран мышью
+                    selected_object = PyGame.get_object_on_coords(event.pos[0], event.pos[1])
 
-                        self.queue.append(("select", selected_object))
-                        has_new_commands = True
+                    log.print("selecting: " + str(selected_object))
+                    # добавляем координаты к команде
+
+                    # отправить команду о выделении (она придет в PyGameDisplay)
+                    self.queue.append(("select", selected_object))
+
+                    # если ожидается ввод ккординат
+                    if self.command.status == "coords":
+
+                        # добавляем координаты к команде
+                        self.command.append_coords(selected_object[0])
 
         return has_new_commands, result
