@@ -7,17 +7,17 @@ class ConsoleDispatcher(Dispatcher):
 
     def __init__(self):
         super().__init__()
-        print("Console Dispatcher is ready!")
+        # print("Console Dispatcher is ready!")
 
     def get_command(self):
-        print("Your turn! Please input command (", end='')
+        print("your turn! Please input command (", end='')
         # вывод доступных команд
         print(*COMMANDS, end=')\n')
         command = input()
 
         # пока не была введена доступная команда
         while command not in COMMANDS:
-            print("Your turn! Please input command (", end='')
+            print("your turn! Please input command (", end='')
             # вывод доступных команд
             print(*COMMANDS, end=')\n')
             command = input()
@@ -34,7 +34,7 @@ class ConsoleDispatcher(Dispatcher):
         return coords
 
     def get_creation(self, x):
-        print("What are you going to create on ({}, {})?(archers, miners, warriors)".format(x[0], x[1]))
+        print("What are you going to create on ({}, {})?(archers or warriors)".format(x[0], x[1]))
         creation = input()
 
         while creation != "archers" and creation != "miners" and creation != "warriors":
@@ -84,30 +84,3 @@ class ConsoleDispatcher(Dispatcher):
         # вызов команды по её имени из пространства имён модуля(класса) ConsoleDispatcher
         f = getattr(ConsoleDispatcher, command)
         return f(self)
-
-        # if command == "create":
-        #     x = self.get_coords(2)
-        #     creation = self.get_creation(x)
-        #
-        #     return "create", x[0], x[1], creation
-        #
-        # elif command == "attack":
-        #     print("from (..,..) and the (..,..)")
-        #     attack = self.get_coords(4)
-        #     print("You are going to attack from ({}, {}) the ({}, {})".format(attack[0], attack[1], attack[2], attack[3]))
-        #     return "attack", attack[0], attack[1], attack[2], attack[3]
-        #
-        # elif command == "move":
-        #     print("from (..,..) and to (..,..)")
-        #     move = self.get_coords(4)
-        #     print("You are going to move from ({}, {}) to ({}, {})".format(move[0], move[1], move[2], move[3]))
-        #     return "move", move[0], move[1], move[2], move[3]
-        #
-        # elif command == "upgrade":
-        #     x = self.get_coords(2)
-        #     print("You are going to upgrade ({}, {})".format(x[0], x[1]))
-        #     return "upgrade", x[0], x[1]
-        #
-        # else:
-        #     print("There is no such command!")
-        #     return 1
