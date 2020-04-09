@@ -1,5 +1,6 @@
 from game.Game import Game
 
-game = Game()
-print("-------------")
+
+game = Game("py_game")
+print("")
 game.start()
