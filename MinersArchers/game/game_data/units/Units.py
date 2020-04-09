@@ -3,10 +3,10 @@ from abc import ABC, abstractmethod
 
 # interface of Unit
 class Unit(ABC):
-    def __init__(self, inp_player, inp_level):
+    def __init__(self, inp_player, inp_level, inp_type="none"):
         self.player = inp_player
         self.level = inp_level
-        self.type = "none"
+        self.type = inp_type
 
     @abstractmethod
     def action(self, **kwargs):
@@ -29,8 +29,6 @@ class Unit(ABC):
 
 # concrete units
 class Warrior(Unit):
-    type = "warriors"
-
     def action(self, enemy):
         pass
         # attack
@@ -43,8 +41,6 @@ class Warrior(Unit):
 
 
 class Archer(Unit):
-    type = "archers"
-
     def action(self, enemy):
         pass
         # attack
@@ -57,8 +53,6 @@ class Archer(Unit):
 
 
 class Miner(Unit):
-    type = "miners"
-
     def action(self):
         pass
         # collect_money(self, hex)
@@ -81,10 +75,10 @@ class UCI(ABC):
 class Creator(UCI):
     def create_unit(self, inp_player, inp_type, inp_level=0):
         if inp_type == "warriors":
-            return Warrior(inp_player, inp_level)
+            return Warrior(inp_player, inp_level, "warriors")
 
         if inp_type == "archers":
-            return Archer(inp_player, inp_level)
+            return Archer(inp_player, inp_level, "archers")
 
         if inp_type == "miners":
-            return Miner(inp_player, inp_level)
+            return Miner(inp_player, inp_level, "archers")

@@ -1,4 +1,5 @@
 import game.game_data.units.Units as unit
+import game.game_data.cells.Cell as cell
 import math
 
 from game.logs.Logs import Logs
@@ -56,7 +57,14 @@ class Controller:
         else:
             # установим тип из command и левел 1
             unit_creator = unit.Creator()
-            self.__game_data.units[(int(command[1]), int(command[2]))] = unit_creator.create_unit(name, command[3], 1)
+            # !!!пока у разных игроков разные типы - следовательно
+            #self.__game_data.units[(int(command[1]), int(command[2]))] = unit_creator.create_unit(name, command[3], 1)
+            if name == "Egor":
+                self.__game_data.units[(int(command[1]), int(command[2]))] = unit_creator.create_unit(name, "warriors",
+                                                                                                      1)
+            else:
+                self.__game_data.units[(int(command[1]), int(command[2]))] = unit_creator.create_unit(name, "archers",
+                                                                                                      1)
             return 0
 
     def attack(self, command, name):
@@ -96,6 +104,7 @@ class Controller:
             if level1 > level2:
                 unit1.set_level(level1 - level2)
                 self.__game_data.units[(h2, w2)] = unit1
+                self.__game_data._cells[h2][w2]._building = "none"
                 self.__game_data.units[(h1, w1)] = self.__game_data.units[(-1, -1)]
                 # указываем на мертвого
                 return 0
@@ -103,6 +112,7 @@ class Controller:
                 # когда совпадают уровни, просто уничтожаем обе армии
                 self.__game_data.units[(h1, w1)] = self.__game_data.units[(-1, -1)]
                 self.__game_data.units[(h2, w2)] = self.__game_data.units[(-1, -1)]
+
                 return 0
             else:
                 unit2.set_level(level2 - level1)
@@ -114,11 +124,6 @@ class Controller:
         w1 = int(command[2])
         h2 = int(command[3])
         w2 = int(command[4])
-
-        # шахтеров не двигаем
-        if self.__game_data.units[(h2, w2)].type == "miners":
-            log.print("You can't move miners!")
-            return 1
 
         if math.fabs(h1 - h2) + math.fabs(w1 - w2) > 1:
             log.print("You can go only up, down, left and right!")
@@ -138,6 +143,7 @@ class Controller:
             unit1 = self.__game_data.units[(h1, w1)]
             self.__game_data.units[(h2, w2)] = unit1
             self.__game_data.units[(h1, w1)] = self.__game_data.units[(-1, -1)]
+
             return 0
 
     def upgrade(self, command):
@@ -152,11 +158,12 @@ class Controller:
         w1 = int(command[2])
 
         # если на этой позиции уже кто-то есть
-        if self.__game_data.units[(h1, w1)].get_level() > 0:
+        if self.__game_data.units[(h1, w1)].player != name:
             log.print("You can upgrade your unit!")
             return 1
         else:
-            # установим тип из command и левел 1
-            unit_creator = unit.Creator()
-            self.__game_data.units[(h1, w1)] = unit_creator.create_unit(name, "miners", 1)
+            # создаем либо бараки, либо шахты
+            # пока что только шахты
+            cell_creator = cell.Creator()
+            self.__game_data._cells[h1][w1] = cell_creator.create_building("mines", name)
             return 0

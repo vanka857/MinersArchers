@@ -1,6 +1,6 @@
 import game.game_data.units.Units as unit
 import game.game_data.cells.Cell as cell
-
+import random
 
 class Data:
     __width = 0
@@ -28,10 +28,14 @@ class Data:
 
         for i in range(h):
             for j in range(w):
-                if (i + j) % 2 == 0:
-                    self.units[(i, j)] = unit_creator.create_unit("Egor", "warriors", i + j)
+                ran = random.randint(0, 5)
+                # пока что у всех уровень 5
+                if ran == 4:
+                    self.units[(i, j)] = unit_creator.create_unit("died", "warriors", 0)
+                elif ran % 2 == 0:
+                    self.units[(i, j)] = unit_creator.create_unit("Ivan", "archers", 5)
                 else:
-                    self.units[(i, j)] = unit_creator.create_unit("Ivan", "warriors", i + j)
+                    self.units[(i, j)] = unit_creator.create_unit("Egor", "warriors", 5)
 
         for i in range(h):
             self._cells.append([])
