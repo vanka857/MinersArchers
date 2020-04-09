@@ -1,4 +1,8 @@
 # coding=utf-8
+
+import time
+from collections import deque
+
 from game.display.ConsoleDisplay import ConsoleDisplay
 from game.dispatcher.ConsoleDispatcher import ConsoleDispatcher
 from game.game_data.Data import Data
@@ -6,8 +10,9 @@ from game.game_control.Controller import Controller
 from game.game_data.PyGame import PyGame
 from game.display.PyGameDisplay import PyGameDisplay
 from game.dispatcher.PyGameDispatcher import PyGameDispatcher
-import time
+from game.logs.Logs import Logs
 
+log = Logs()
 
 class Game:
     __game_control = 0
@@ -26,15 +31,16 @@ class Game:
     def __init__(self, mode="console", w=5, h=5):
         self.__mode = mode
         if mode == "py_game":
+            self.pyg_message_queue = deque()
             self.__py_game = PyGame()
-            self.__display = PyGameDisplay(self.__py_game, w, h)
-            self.__event_dispatcher = PyGameDispatcher(self.__py_game)
+            self.__display = PyGameDisplay(self.__py_game, w, h, self.pyg_message_queue)
+            self.__event_dispatcher = PyGameDispatcher(self.__py_game, self.pyg_message_queue)
         elif mode == "console":
             # console output
             self.__display = ConsoleDisplay(w, h)
             self.__event_dispatcher = ConsoleDispatcher()
         else:
-            print("Incorrect init!")
+            log.print("Incorrect init!")
             raise Exception
 
         self.__game_data = Data(w, h)
@@ -45,9 +51,10 @@ class Game:
         if command == "quit":
             # завершение программы
             self.__running = False
+            return 0
         else:
             # передача управления в контроллер
-            self.__game_control.main_control(command, name)
+            return self.__game_control.main_control(command, name)
 
     def __change_player(self):
         # игроки делают ходу по кругу
@@ -58,7 +65,7 @@ class Game:
 
     # начало игры
     def start(self):
-        print("Game has started!")
+        log.print("Game has started!")
 
         self.__display.set_data(self.__game_data)
         # просто передача ссылки
@@ -67,19 +74,16 @@ class Game:
         last_frame_time = time.time()
 
         while self.__running:
-            # Для вывода имени игрока, который ходит в данный момент
-            # print(self.__get_player(self.__current_player), end=', ')
             has_new_commands, commands = self.__event_dispatcher.check_new_commands()
             # если есть новые команды
             if has_new_commands:
                 for command in commands:
                     # передаем текущего игрока по его id
-                    self.__do_action(command, self.__get_player(self.__current_player))
 
-                    # ЕГОР, вот здесь нао сделать проверку, завершен ли ход
-                    if "ход завершен":
+                    if self.__do_action(command, self.__get_player(self.__current_player)) == 0:
                         # когда ход игрока закончен, меняем текущего игрока
                         self.__change_player()
+                        log.print("player changed to:" + self.__get_player(self.__current_player))
 
             current_time = time.time()
             if (current_time - last_frame_time) * 1000 > self.FRAME_TIME:

@@ -1,11 +1,15 @@
-from game.display.Display import Display
-from game.game_data.PyGame import PyGame
-from game.game_data.units.Units import Unit
 import pygame
 
+from game.display.Display import Display
+from game.game_data import PyGame
+from game.game_data.units.Units import Unit
+from game.logs.Logs import Logs
+
+log = Logs("Yellow")
+
 # размер одной ячейки(квадратной) в пикселях
-CELL_SIZE = 200
-UNIT_SIZE = 100
+CELL_SIZE = PyGame.CELL_SIZE
+UNIT_SIZE = PyGame.UNIT_SIZE
 
 
 class PyGCells:
@@ -33,7 +37,9 @@ class PyGCells:
         for pyg_cell in self.cells:
             dest.blit(pyg_cell.surf, self.create_coord_for_cell(pyg_cell.x, pyg_cell.y))
 
+
 i = 0
+
 
 class PyGCell(pygame.sprite.Sprite):
     id_ = 0
@@ -65,7 +71,6 @@ class PyGUnits:
             self.units.append(PyGUnit(unit, j_, i_, n))
             self.units_id_on_coord[(j_, i_)] =  unit
             n += 1
-
 
     def create_coord_for_unit(self, x, y):
         return CELL_SIZE * x + (CELL_SIZE - UNIT_SIZE) / 2, CELL_SIZE * y + (CELL_SIZE - UNIT_SIZE) / 2
@@ -112,15 +117,16 @@ class PyGameDisplay(Display):
 
     field_created = False
 
-    def __init__(self, py_game_, w, h):
+    def __init__(self, py_game_, w, h, queue=None):
         super().__init__()
         self.data = None
+        self.queue = queue
         self.py_game = py_game_
         self.w = w * CELL_SIZE
         self.h = h * CELL_SIZE
         self.py_game.init_screen(self.w, self.h)
         self.screen = self.py_game.get_screen()
-        print('PyGame Display created!')
+        log.print('PyGame Display created!')
 
     def set_data(self, data):
         self.data = data
@@ -129,10 +135,16 @@ class PyGameDisplay(Display):
         return self.py_game.get_screen()
 
     def update(self):
+
+        if len(self.queue) > 0:
+            log.print('got some commands: ', end='')
+            log.print(self.queue)
+            self.queue.popleft()
+
         if True:
             self.draw()
         self.py_game.update_display()
-        print('Display updated')
+        #log.print('Display updated')
 
     def draw(self):
         if not self.field_created:

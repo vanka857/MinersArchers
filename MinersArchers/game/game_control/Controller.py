@@ -10,6 +10,8 @@ class Controller:
 
     # последний элемент кортежа должен быть именем игрока
     def main_control(self, command, name_of_player):
+        print("main controller got command:" + str(command))
+
         # провера на то, что не залезаем за края
         h1 = int(command[1])
         w1 = int(command[2])
@@ -48,6 +50,7 @@ class Controller:
             # установим тип из command и левел 1
             unit_creator = unit.Creator()
             self.__game_data.units[(int(command[1]), int(command[2]))] = unit_creator.create_unit(name, command[3], 1)
+            return 0
 
     def attack(self, command, name):
         # провекра на то, что мы не пытаемся залезть за края
@@ -69,7 +72,7 @@ class Controller:
 
         if self.__game_data.units[(h2, w2)].get_level == 0:
             # если на той позиции никого нет, просто переносим отряд
-            self.move(command, name)
+            self.move(command)
         else:
             # иначе все сделано по правилам и можем нападать
             # пока считаем, что можем ходить только в 4 стороны
@@ -98,7 +101,7 @@ class Controller:
         h2 = int(command[3])
         w2 = int(command[4])
 
-        # дома не двигаем
+        # шахтеров не двигаем
         if self.__game_data.units[(h2, w2)].type == "miners":
             print("You can't move miners!")
             return 1
@@ -107,7 +110,7 @@ class Controller:
             print("You can go only up, down, left and right!")
             return 1
 
-        if h2 >= self.__game_data.get_size_field[0] or w2 >= self.__game_data.get_size_field[1] \
+        if h2 >= self.__game_data.get_size_field()[0] or w2 >= self.__game_data.get_size_field()[1] \
                 or h2 < 0 or w2 < 0:
             print("You are out of the field! Check coordinates!")
             return 1
@@ -127,3 +130,5 @@ class Controller:
         w1 = int(command[2])
 
         self.__game_data.units[(h1, w1)].set_level(self.__game_data.units[(h1, w1)].level + 1)
+        return 0
+
