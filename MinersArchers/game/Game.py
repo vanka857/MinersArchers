@@ -6,6 +6,7 @@ from game.game_control.Controller import Controller
 from game.game_data.PyGame import PyGame
 from game.display.PyGameDisplay import PyGameDisplay
 from game.dispatcher.PyGameDispatcher import PyGameDispatcher
+import time
 
 
 class Game:
@@ -20,15 +21,21 @@ class Game:
     # id игрока
     __current_player = 0
 
+    FRAME_TIME = 50
+
     def __init__(self, mode="console", w=5, h=5):
+        self.__mode = mode
         if mode == "py_game":
             self.__py_game = PyGame()
             self.__display = PyGameDisplay(self.__py_game, w, h)
             self.__event_dispatcher = PyGameDispatcher(self.__py_game)
-        else:
+        elif mode == "console":
             # console output
             self.__display = ConsoleDisplay(w, h)
             self.__event_dispatcher = ConsoleDispatcher()
+        else:
+            print("Incorrect init!")
+            raise Exception
 
         self.__game_data = Data(w, h)
         # у контроллера есть все данные об игре
@@ -58,9 +65,12 @@ class Game:
         self.__display.set_data(self.__game_data)
         self.__display.update()
 
+        last_frame_time = time.time()
+
         while self.__running:
             # Для вывода имени игрока, который ходит в данный момент
-            print(self.__get_player(self.__current_player), end=', ')
+
+            # print(self.__get_player(self.__current_player), end=', ')
 
             has_new_commands, commands = self.__event_dispatcher.check_new_commands()
             # если есть новые команды
@@ -68,12 +78,11 @@ class Game:
                 for command in commands:
                     # если контроллер вернул 0, все хорошо, меняем игрока, иначе цикл повторяется с тем же игроком
                     if self.__do_action(command, self.__get_player(self.__current_player)) == 0:
+
                         # когда ход игрока закончен, меняем текущего игрока
                         self.__change_player()
 
+            current_time = time.time()
+            if (current_time - last_frame_time) * 1000 > self.FRAME_TIME:
+                last_frame_time = current_time
                 self.__display.update()
-
-    def draw(self):
-        # получаем размеры поля
-        sizes = self.__game_data.get_size_field()
-        # self.__display(*sizes)
