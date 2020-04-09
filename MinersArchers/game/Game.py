@@ -65,7 +65,7 @@ class Game:
             return self.__game_control.main_control(command, name)
 
     def __change_player(self):
-        # игроки делают ходы по кругу
+        # игроки делают ходы по очереди
         self.__current_player = (self.__current_player + 1) % len(self.__players)
 
     def __get_player(self, id_):
@@ -83,12 +83,10 @@ class Game:
         last_frame_time = time.time()
 
         while self.__running:
-
             has_new_commands, commands = self.__event_dispatcher.check_new_commands()
             # если есть новые команды
             if has_new_commands:
                 for command in commands:
-
                     # если контроллер вернул 0, все хорошо, меняем игрока, иначе цикл повторяется с тем же игроком
                     if self.__do_action(command, self.__get_player(self.__current_player)) == 0:
 

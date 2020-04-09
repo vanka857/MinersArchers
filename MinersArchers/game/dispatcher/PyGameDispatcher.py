@@ -5,6 +5,7 @@ from game.game_data import PyGame
 from .Dispatcher import Dispatcher
 from .Command import Command
 
+# первые буквы команд для взаимодействия с юнитами через клавиартуру
 from pygame.locals import (
     K_UP,
     K_a,
