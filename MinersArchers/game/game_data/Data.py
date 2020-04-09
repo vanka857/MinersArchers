@@ -22,16 +22,16 @@ class Data:
         print('Creating game data:')
 
         # сделаем мертвого юнита, на которого будем ссылаться при удалении
-        # у него особый игрок и уровень - 0
+        # у него особый игрок died и уровень - 0
         unit_creator = unit.Creator()
         self.units[(-1, -1)] = unit_creator.create_unit("died", "warriors", 0)
 
         for i in range(h):
             for j in range(w):
                 if (i + j) % 2 == 0:
-                    self.units[(i, j)] = unit_creator.create_unit("egor", "warriors", i + j)
+                    self.units[(i, j)] = unit_creator.create_unit("Egor", "warriors", i + j)
                 else:
-                    self.units[(i, j)] = unit_creator.create_unit("ivan", "warriors", i + j)
+                    self.units[(i, j)] = unit_creator.create_unit("Ivan", "warriors", i + j)
 
         for i in range(h):
             self._cells.append([])

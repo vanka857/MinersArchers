@@ -17,7 +17,7 @@ class Game:
     __running = True
 
     # игроки
-    __players = ["ivan", "egor"]
+    __players = ["Ivan", "Egor"]
     # id игрока
     __current_player = 0
 
@@ -45,12 +45,13 @@ class Game:
         if command == "quit":
             # завершение программы
             self.__running = False
+            return 0
         else:
             # передача управления в контроллер
-            self.__game_control.main_control(command, name)
+            return self.__game_control.main_control(command, name)
 
     def __change_player(self):
-        # игроки делают ходу по кругу
+        # игроки делают ходы по кругу
         self.__current_player = (self.__current_player + 1) % len(self.__players)
 
     def __get_player(self, id_):
@@ -60,24 +61,24 @@ class Game:
     def start(self):
         print("Game has started!")
 
+        # пока что Draw видит все поле
         self.__display.set_data(self.__game_data)
-        # просто передача ссылки
         self.__display.update()
 
         last_frame_time = time.time()
 
         while self.__running:
             # Для вывода имени игрока, который ходит в данный момент
+
             # print(self.__get_player(self.__current_player), end=', ')
+
             has_new_commands, commands = self.__event_dispatcher.check_new_commands()
             # если есть новые команды
             if has_new_commands:
                 for command in commands:
-                    # передаем текущего игрока по его id
-                    self.__do_action(command, self.__get_player(self.__current_player))
+                    # если контроллер вернул 0, все хорошо, меняем игрока, иначе цикл повторяется с тем же игроком
+                    if self.__do_action(command, self.__get_player(self.__current_player)) == 0:
 
-                    # ЕГОР, вот здесь нао сделать проверку, завершен ли ход
-                    if "ход завершен":
                         # когда ход игрока закончен, меняем текущего игрока
                         self.__change_player()
 
