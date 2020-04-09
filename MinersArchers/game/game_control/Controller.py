@@ -37,7 +37,7 @@ class Controller:
                 return self.upgrade(command)
 
             else:
-                pass
+                return 1
 
     def create(self, command, name):
         # если на этой позиции уже кто-то есть
