@@ -47,7 +47,6 @@ class PyGCell(pygame.sprite.Sprite):
     id_ = 0
     x = None
     y = None
-    is_select = False
 
     def __init__(self, cell, id__, x_, y_):
         self.id_ = id__
@@ -58,7 +57,6 @@ class PyGCell(pygame.sprite.Sprite):
         # internal = pygame.Surface((CELL_SIZE * 0.9, CELL_SIZE * 0.9))
         global i
         # internal.fill(((i + 100) % 255, i % 255, (i + 70) % 255))
-        self.is_selected()
         # пока что расставляем текстуры в шахматном порядке
         if cell._building == "mines":
             internal = pygame.image.load("Mine.png").convert_alpha()
@@ -73,11 +71,6 @@ class PyGCell(pygame.sprite.Sprite):
         i += 20
         self.surf.blit(internal, (CELL_SIZE * 0, CELL_SIZE * 0))
         self.rect = self.surf.get_rect()
-
-    def is_selected(self):
-        if self.is_select:
-            external = pygame.image.load("Frame_cell.png").convert()
-            self.surf.blit(external, (UNIT_SIZE * 0, UNIT_SIZE * 0))
 
 
 class PyGUnits:
@@ -105,7 +98,6 @@ class PyGUnit(pygame.sprite.Sprite):
     id_ = 0
     x = None
     y = None
-    is_select = False
 
     def __init__(self, unit, x_, y_, id__):
         self.id_ = id__
@@ -119,7 +111,7 @@ class PyGUnit(pygame.sprite.Sprite):
             internal = pygame.Surface((UNIT_SIZE, UNIT_SIZE))
             internal.fill((255, 255, 255))
             # если убрать, будут видны старые слои
-            # internal.set_colorkey((255, 255, 255))
+            internal.set_colorkey((255, 255, 255))
 
         elif unit.type == "archers":
             internal = pygame.image.load("Archer.png").convert_alpha()
@@ -143,11 +135,6 @@ class PyGUnit(pygame.sprite.Sprite):
             self.surf.blit(text_level, (UNIT_SIZE * 0.1, UNIT_SIZE * 0.74))
 
         self.rect = self.surf.get_rect()
-
-    def is_selected(self):
-        if self.is_select:
-            external = pygame.image.load("Frame_unit.png").convert_alpha()
-            self.surf.blit(external, (UNIT_SIZE * 0, UNIT_SIZE * 0))
 
 
 class PyGBuilding(pygame.sprite.Sprite):
@@ -189,17 +176,17 @@ class PyGameDisplay(Display):
         return self.py_game.get_screen()
 
     def update(self):
-
         if len(self.queue) > 0:
             log.print('got some commands: ' + str(*self.queue))
-            # !!!
+
             if self.queue[0][0] == "select":
                 if self.queue[0][1][1] == "unit":
                     frame = pygame.image.load("Frame_unit.png").convert_alpha()
                     y = int(self.queue[0][1][0][0])
                     x = int(self.queue[0][1][0][1])
                     self.__frame_layer = pygame.Surface((self.w, self.h), pygame.SRCALPHA, 32)
-                    self.__frame_layer.blit(frame, (CELL_SIZE * x + (CELL_SIZE - UNIT_SIZE) / 2, CELL_SIZE * y + (CELL_SIZE - UNIT_SIZE) / 2))
+                    self.__frame_layer.blit(frame, (
+                    CELL_SIZE * x + (CELL_SIZE - UNIT_SIZE) / 2, CELL_SIZE * y + (CELL_SIZE - UNIT_SIZE) / 2))
                 else:
                     y = int(self.queue[0][1][0][0])
                     x = int(self.queue[0][1][0][1])
