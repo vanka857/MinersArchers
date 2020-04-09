@@ -1,7 +1,11 @@
 import pygame
+import random
 
 from game.display.Display import Display
-from game.game_data import PyGame
+# <<<<<<< dev_ivan2
+# from game.game_data import PyGame
+# =======
+from game.game_data.PyGame import PyGame
 from game.game_data.units.Units import Unit
 from game.logs.Logs import Logs
 
@@ -45,6 +49,7 @@ class PyGCell(pygame.sprite.Sprite):
     id_ = 0
     x = None
     y = None
+    is_select = False
 
     def __init__(self, cell, id__, x_, y_):
         self.id_ = id__
@@ -52,12 +57,26 @@ class PyGCell(pygame.sprite.Sprite):
         self.y = y_
         super().__init__()
         self.surf = pygame.Surface((CELL_SIZE, CELL_SIZE))
-        internal = pygame.Surface((CELL_SIZE * 0.9, CELL_SIZE * 0.9))
+        #internal = pygame.Surface((CELL_SIZE * 0.9, CELL_SIZE * 0.9))
         global i
-        internal.fill(((i + 100) % 255, i % 255, (i + 70) % 255))
+        #internal.fill(((i + 100) % 255, i % 255, (i + 70) % 255))
+        flag = random.randint(0, 2)
+        self.is_selected()
+        if flag == 0:
+            internal = pygame.image.load("Valley.png").convert()
+        elif flag == 1:
+            internal = pygame.image.load("Mountain.png").convert()
+        else:
+            internal = pygame.image.load("Forest.png").convert()
+
         i += 20
         self.surf.blit(internal, (CELL_SIZE * 0.05, CELL_SIZE * 0.05))
         self.rect = self.surf.get_rect()
+
+    def is_selected(self):
+        if self.is_select:
+            external = pygame.image.load("Frame_cell.png").convert()
+            self.surf.blit(external, (UNIT_SIZE * 0, UNIT_SIZE * 0))
 
 
 class PyGUnits:
@@ -69,7 +88,7 @@ class PyGUnits:
         for (i_, j_) in units.keys():
             unit = units[(i_, j_)]
             self.units.append(PyGUnit(unit, j_, i_, n))
-            self.units_id_on_coord[(j_, i_)] =  unit
+            self.units_id_on_coord[(j_, i_)] = unit
             n += 1
 
     def create_coord_for_unit(self, x, y):
@@ -84,6 +103,7 @@ class PyGUnit(pygame.sprite.Sprite):
     id_ = 0
     x = None
     y = None
+    is_select = True
 
     def __init__(self, unit, x_, y_, id__):
         self.id_ = id__
@@ -91,18 +111,33 @@ class PyGUnit(pygame.sprite.Sprite):
         self.y = y_
         super().__init__()
         self.surf = pygame.Surface((UNIT_SIZE, UNIT_SIZE))
-        internal = pygame.Surface((UNIT_SIZE * 0.9, UNIT_SIZE * 0.9))
-        internal.fill((255, 255, 255))
+
+        #internal = pygame.Surface((UNIT_SIZE * 0.9, UNIT_SIZE * 0.9))
+        # internal.fill((255, 255, 255))
+
+        # если знаем, что сейчас курсор навдеен на этот юнит
+        self.is_selected()
+        flag = random.randint(0, 1)
+
+        if flag:
+            internal = pygame.image.load("Archer.png").convert()
+        else:
+            internal = pygame.image.load("Warrior.png").convert()
+
         self.surf.blit(internal, (UNIT_SIZE * 0.05, UNIT_SIZE * 0.05))
+
         self.rect = self.surf.get_rect()
 
+    def is_selected(self):
+        if self.is_select:
+            external = pygame.image.load("Frame_unit.png").convert()
+            self.surf.blit(external, (UNIT_SIZE * 0, UNIT_SIZE * 0))
 
 class PyGBuilding(pygame.sprite.Sprite):
     pass
 
 
 class PyGameDisplay(Display):
-
     w = None
     h = None
 
