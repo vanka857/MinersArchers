@@ -29,7 +29,8 @@ class Controller:
             log.print("You are out of the field! Check coordinates!")
             return 1
 
-        if name_of_player != self.__game_data.units[h1, w1].player and self.__game_data.units[h1, w1].player != "died":
+        if name_of_player != self.__game_data.units[h1, w1].player and not \
+                (self.__game_data.units[h1, w1].player == "died" and command[0] == "create"):
             log.print("You can't do it! It is not your cell or union!")
             return 1
 
@@ -159,7 +160,7 @@ class Controller:
 
         # если на этой позиции уже кто-то есть
         if self.__game_data.units[(h1, w1)].player != name:
-            log.print("You can upgrade your unit!")
+            log.print("You can't build on different unit!")
             return 1
         else:
             # создаем либо бараки, либо шахты
