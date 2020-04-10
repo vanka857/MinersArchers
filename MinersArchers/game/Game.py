@@ -30,7 +30,7 @@ class Game:
 
     FRAME_TIME = 400
 
-    def __init__(self, mode="console", w=5, h=5):
+    def __init__(self, w=5, h=5, mode="console"):
         self.__mode = mode
         if mode == "py_game":
             # создаем очередь сообщения для прямой отправки от PyGameDispatcher в PyGameDisplay команд типа "select"
@@ -102,3 +102,5 @@ class Game:
             if (current_time - last_frame_time) * 1000 > self.FRAME_TIME:
                 last_frame_time = current_time
                 self.__display.update()
+            else:
+                time.sleep(0.1)

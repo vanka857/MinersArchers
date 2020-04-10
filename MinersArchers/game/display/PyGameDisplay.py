@@ -15,11 +15,13 @@ UNIT_SIZE = PyGame.UNIT_SIZE
 
 
 class PyGCells:
-    cells = list()
-    cell_id_on_coord = dict()
 
     def __init__(self, cells):
         n = 0
+
+        self.cells = list()
+        self.cell_id_on_coord = dict()
+
         for i in range(len(cells)):
             for j in range(len(cells[i])):
                 # create PyGCell from cell[i][j] (class game_data.Cell) and append it to self.cells (class PyGCell)
@@ -44,9 +46,6 @@ i = 0
 
 
 class PyGCell(pygame.sprite.Sprite):
-    id_ = 0
-    x = None
-    y = None
 
     def __init__(self, cell, id__, x_, y_):
         self.id_ = id__
@@ -74,16 +73,20 @@ class PyGCell(pygame.sprite.Sprite):
 
 
 class PyGUnits:
-    units = list()
-    units_id_on_coord = dict()
 
     def __init__(self, units):
         n = 0
+
+        self.units = list()
+        self.units_id_on_coord = dict()
+
         # перевод словаря из юнитов из game_data в двмумерный список
         for (i_, j_) in units.keys():
             unit = units[(i_, j_)]
-            self.units.append(PyGUnit(unit, j_, i_, n))
-            self.units_id_on_coord[(j_, i_)] = unit
+            pyg_unit = PyGUnit(unit, j_, i_, unit.level, n)
+
+            self.units.append(pyg_unit)
+            self.units_id_on_coord[(j_, i_)] = pyg_unit
             n += 1
 
     def create_coord_for_unit(self, x, y):
@@ -95,23 +98,19 @@ class PyGUnits:
 
 
 class PyGUnit(pygame.sprite.Sprite):
-    id_ = 0
-    x = None
-    y = None
 
-    def __init__(self, unit, x_, y_, id__):
+    def __init__(self, unit, x_, y_, level, id__):
         self.id_ = id__
+        self.level = level
         self.x = x_
         self.y = y_
         super().__init__()
         self.surf = pygame.Surface((UNIT_SIZE, UNIT_SIZE), flags=pygame.SRCALPHA)
+        self.surf.fill(0)
 
-        # обработка мертвого юнита!!!вместо него будем выводить пока белый цвет->свободное место
-        if unit.get_level() == 0:
-            internal = pygame.Surface((UNIT_SIZE, UNIT_SIZE))
-            internal.fill((255, 255, 255))
-            # если убрать, будут видны старые слои
-            internal.set_colorkey((255, 255, 255))
+        if self.level == 0:
+            internal = pygame.Surface((UNIT_SIZE, UNIT_SIZE), flags=pygame.SRCALPHA)
+            internal.fill(0)
 
         elif unit.type == "archers":
             internal = pygame.image.load("Archer.png").convert_alpha()
@@ -134,7 +133,7 @@ class PyGUnit(pygame.sprite.Sprite):
             text_level = f1.render('Lvl {}'.format(unit.get_level()), 1, (102, 51, 51))
             self.surf.blit(text_level, (UNIT_SIZE * 0.1, UNIT_SIZE * 0.74))
 
-        self.rect = self.surf.get_rect()
+        # self.rect = self.surf.get_rect()
 
 
 class PyGBuilding(pygame.sprite.Sprite):
@@ -142,20 +141,6 @@ class PyGBuilding(pygame.sprite.Sprite):
 
 
 class PyGameDisplay(Display):
-    w = None
-    h = None
-
-    __field_layer = None
-    __units_layer = None
-    __frame_layer = None
-    __buildings_layer = None
-    __screen = None
-
-    pyg_cells = None
-    pyg_units = None
-    pyg_buildings = None
-
-    field_created = False
 
     def __init__(self, py_game_, w, h, queue=None):
         super().__init__()
@@ -166,6 +151,18 @@ class PyGameDisplay(Display):
         self.h = h * CELL_SIZE
         self.py_game.init_screen(self.w, self.h)
         self.screen = self.py_game.get_screen()
+
+        self.__field_layer = None
+        self.__units_layer = None
+        self.__frame_layer = None
+        self.__buildings_layer = None
+
+        self.pyg_cells = None
+        self.pyg_units = None
+        self.pyg_buildings = None
+
+        self.field_created = False
+
         log.print('PyGame Display created!')
 
     # как раз тут все данные из game_data, с которыми взаимодействует контроллер
@@ -177,7 +174,7 @@ class PyGameDisplay(Display):
 
     def update(self):
         if len(self.queue) > 0:
-            log.print('got some commands: ' + str(*self.queue))
+            log.print('got some commands: ' + str(self.queue))
 
             if self.queue[0][0] == "select":
                 if self.queue[0][1][1] == "unit":
@@ -197,10 +194,10 @@ class PyGameDisplay(Display):
             self.queue.popleft()
 
         if not self.field_created:
-            self.draw()
             self.field_created = True
+            self.draw(all_=True)
 
-        self.screen.fill((255, 255, 255))
+        # self.screen.fill((255, 255, 255, 255))
         self.screen.blit(self.__field_layer, (0, 0))
         self.screen.blit(self.__units_layer, (0, 0))
         self.screen.blit(self.__frame_layer, (0, 0))
@@ -208,9 +205,13 @@ class PyGameDisplay(Display):
         self.py_game.update_display()
         # log.print('Display updated')
 
-    def draw(self):
-        self.create_field_layer()
-        self.create_units_layer()
+    def draw(self, all_=False, units=True):
+        if all_:
+            self.create_field_layer()
+            self.create_units_layer()
+        if units:
+            self.create_units_layer()
+
         self.__frame_layer = pygame.Surface((self.w, self.h), pygame.SRCALPHA, 32)
 
     def create_units_layer(self):
@@ -218,7 +219,11 @@ class PyGameDisplay(Display):
             raise Exception
         # создание слоя из юнитов
         self.pyg_units = PyGUnits(self.data.units)
-        self.__units_layer = pygame.Surface((self.w, self.h), pygame.SRCALPHA, 32)
+        if self.__units_layer is None:
+            self.__units_layer = pygame.Surface((self.w, self.h), pygame.SRCALPHA, 32)
+
+        self.__units_layer.fill(0)
+
         # их отрисовка
         self.pyg_units.render(self.__units_layer)
 
@@ -227,6 +232,6 @@ class PyGameDisplay(Display):
             raise Exception
         # создание слоя из cell
         self.pyg_cells = PyGCells(self.data._cells)
-        self.__field_layer = pygame.Surface((self.w, self.h), pygame.SRCALPHA, 32)
+        self.__field_layer = pygame.Surface((self.w, self.h))
         # их отрисовка
         self.pyg_cells.render(self.__field_layer)
