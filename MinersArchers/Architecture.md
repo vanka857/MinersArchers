@@ -46,4 +46,4 @@
 
 UML diagram (без графики) :
 =============================
-![UML diagram](UML)
+![UML diagram](MinersArchersUML.png)
