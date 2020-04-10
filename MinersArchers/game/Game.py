@@ -55,6 +55,23 @@ class Game:
         # у контроллера есть все данные об игре
         self.__game_control = Controller(self.__game_data)
 
+    def if_end(self):
+        flag = True
+
+        for para in self.__game_data.units.items():
+            if para[1].player == "Egor":
+                flag = False
+        if flag:
+            log.print("Ivan win!!! End of the game")
+            self.__running = 0
+
+        for para in self.__game_data.units.items():
+            if para[1].player == "Ivan":
+                flag = False
+        if flag:
+            log.print("Egor win!!! End of the game")
+            self.__running = 0
+
     def __do_action(self, command, name):
         if command == "quit":
             # завершение программы
@@ -83,6 +100,8 @@ class Game:
         last_frame_time = time.time()
 
         while self.__running:
+            self.if_end()
+
             has_new_commands, commands = self.__event_dispatcher.check_new_commands()
             # если есть новые команды
             if has_new_commands:

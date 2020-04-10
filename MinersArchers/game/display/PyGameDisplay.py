@@ -58,14 +58,14 @@ class PyGCell(pygame.sprite.Sprite):
         # internal.fill(((i + 100) % 255, i % 255, (i + 70) % 255))
         # пока что расставляем текстуры в шахматном порядке
         if cell._building == "mines":
-            internal = pygame.image.load("Mine.png").convert_alpha()
+            internal = pygame.image.load("pics/Mine.png").convert_alpha()
         elif cell._building == "barrack":
-            internal = pygame.image.load("Barrack.png").convert_alpha()
+            internal = pygame.image.load("pics/Barrack.png").convert_alpha()
         else:
             if (self.x + self.y) % 2 == 0:
-                internal = pygame.image.load("Valley.png").convert_alpha()
+                internal = pygame.image.load("pics/Valley.png").convert_alpha()
             else:
-                internal = pygame.image.load("Mountain.png").convert_alpha()
+                internal = pygame.image.load("pics/Mountain.png").convert_alpha()
 
         i += 20
         self.surf.blit(internal, (CELL_SIZE * 0, CELL_SIZE * 0))
@@ -113,13 +113,13 @@ class PyGUnit(pygame.sprite.Sprite):
             internal.fill(0)
 
         elif unit.type == "archers":
-            internal = pygame.image.load("Archer.png").convert_alpha()
+            internal = pygame.image.load("pics/Archer.png").convert_alpha()
 
         elif unit.type == "warriors":
-            internal = pygame.image.load("Warrior.png").convert_alpha()
+            internal = pygame.image.load("pics/Warrior.png").convert_alpha()
 
         elif unit.type == "miners":
-            internal = pygame.image.load("Miner.png").convert_alpha()
+            internal = pygame.image.load("pics/Miner.png").convert_alpha()
 
         else:
             # черный фон никогда не должно выводиться
@@ -178,7 +178,7 @@ class PyGameDisplay(Display):
 
             if self.queue[0][0] == "select":
                 if self.queue[0][1][1] == "unit":
-                    frame = pygame.image.load("Frame_unit.png").convert_alpha()
+                    frame = pygame.image.load("pics/Frame_unit.png").convert_alpha()
                     y = int(self.queue[0][1][0][0])
                     x = int(self.queue[0][1][0][1])
                     self.__frame_layer = pygame.Surface((self.w, self.h), pygame.SRCALPHA, 32)
@@ -187,7 +187,7 @@ class PyGameDisplay(Display):
                 else:
                     y = int(self.queue[0][1][0][0])
                     x = int(self.queue[0][1][0][1])
-                    frame = pygame.image.load("Frame_cell.png").convert_alpha()
+                    frame = pygame.image.load("pics/Frame_cell.png").convert_alpha()
                     self.__frame_layer = pygame.Surface((self.w, self.h), pygame.SRCALPHA, 32)
                     self.__frame_layer.blit(frame, (x * CELL_SIZE, y * CELL_SIZE))
 
