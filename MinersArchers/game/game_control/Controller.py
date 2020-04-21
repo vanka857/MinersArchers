@@ -6,6 +6,7 @@ from game.logs.Logs import Logs
 
 # устанавливаем цвет логов
 log = Logs("Green")
+TIPS = {"Egor": "warriors", "Ivan": "archers"}
 
 
 class Controller:
@@ -35,22 +36,15 @@ class Controller:
             return 1
 
         else:
-            if command[0] == "create":
-                return self.create(command, name_of_player)
-
-            elif command[0] == "attack":
-                return self.attack(command, name_of_player)
-
-            elif command[0] == "move":
-                return self.move(command)
-
-            elif command[0] == "upgrade":
-                return self.upgrade(command)
-
-            elif command[0] == "build":
-                return self.build(command, name_of_player)
+            f = getattr(Controller, command[0])
+            return f(self, command, name_of_player)
 
     def create(self, command, name):
+        # если баланс 0
+        if self.__game_data.score[name] == 0:
+            log.print("You have no coins to create a unit!")
+            return 1
+
         # если на этой позиции уже кто-то есть
         if self.__game_data.units[int(command[1]), int(command[2])].get_level() > 0:
             log.print("You can upgrade your unit!")
@@ -59,13 +53,10 @@ class Controller:
             # установим тип из command и левел 1
             unit_creator = unit.Creator()
             # !!!пока у разных игроков разные типы - следовательно
-            #self.__game_data.units[(int(command[1]), int(command[2]))] = unit_creator.create_unit(name, command[3], 1)
-            if name == "Egor":
-                self.__game_data.units[(int(command[1]), int(command[2]))] = unit_creator.create_unit(name, "warriors",
-                                                                                                      1)
-            else:
-                self.__game_data.units[(int(command[1]), int(command[2]))] = unit_creator.create_unit(name, "archers",
-                                                                                                      1)
+            self.__game_data.units[(int(command[1]), int(command[2]))] = \
+                unit_creator.create_unit(name, TIPS[name], 1)
+            # и снимаем монету за создание юнита
+            self.__game_data.down_score(name)
             return 0
 
     def attack(self, command, name):
@@ -107,20 +98,25 @@ class Controller:
                 self.__game_data.units[(h2, w2)] = unit1
                 self.__game_data._cells[h2][w2]._building = "none"
                 self.__game_data.units[(h1, w1)] = self.__game_data.units[(-1, -1)]
+                # увеличиваем его очки
+                for i in range(level2):
+                    self.__game_data.up_score(name)
                 # указываем на мертвого
                 return 0
             elif level1 == level2:
                 # когда совпадают уровни, просто уничтожаем обе армии
                 self.__game_data.units[(h1, w1)] = self.__game_data.units[(-1, -1)]
                 self.__game_data.units[(h2, w2)] = self.__game_data.units[(-1, -1)]
-
+                # увеличиваем его очки
+                for i in range(level2):
+                    self.__game_data.up_score(name)
                 return 0
             else:
                 unit2.set_level(level2 - level1)
                 self.__game_data.units[(h1, w1)] = self.__game_data.units[(-1, -1)]
                 return 0
 
-    def move(self, command):
+    def move(self, command, name):
         h1 = int(command[1])
         w1 = int(command[2])
         h2 = int(command[3])
@@ -147,11 +143,18 @@ class Controller:
 
             return 0
 
-    def upgrade(self, command):
+    def upgrade(self, command, name):
         h1 = int(command[1])
         w1 = int(command[2])
 
+        if self.__game_data.score[name] == 0:
+            log.print("You have no coins to upgrade the unit!")
+            return 1
+        # и снимаем монету за создание юнита
+        self.__game_data.down_score(name)
+
         self.__game_data.units[(h1, w1)].set_level(self.__game_data.units[(h1, w1)].level + 1)
+
         return 0
 
     def build(self, command, name):

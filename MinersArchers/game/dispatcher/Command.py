@@ -6,7 +6,8 @@ class Command:
     def __init__(self):
         # init - поле, показывающее, была ли "инициализирована" Command
         self.init = False
-        # status - поле, показывающее, что в данный момент ожидает Command. Любая Command изначально ожидает координаты
+        # status - поле, показывающее, что в данный момент ожидает Command.
+        # Любая Command изначально ожидает координаты
         self.status = "coords"
         self.command = None
         self.coords = list()

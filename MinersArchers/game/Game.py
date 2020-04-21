@@ -25,6 +25,8 @@ class Game:
 
     # игроки
     __players = ["Ivan", "Egor"]
+    # баланс игроков
+    __score = {__players[0]: 0, __players[1]: 0}
     # id игрока
     __current_player = 0
 
@@ -33,7 +35,8 @@ class Game:
     def __init__(self, w=5, h=5, mode="console"):
         self.__mode = mode
         if mode == "py_game":
-            # создаем очередь сообщения для прямой отправки от PyGameDispatcher в PyGameDisplay команд типа "select"
+            # создаем очередь сообщения для прямой отправки от
+            # PyGameDispatcher в PyGameDisplay команд типа "select"
             self.pyg_message_queue = deque()
 
             # создаем god-object для работы с pygame
@@ -56,21 +59,33 @@ class Game:
         self.__game_control = Controller(self.__game_data)
 
     def if_end(self):
-        flag = True
-
+        # подсчет сколько у кого юнитов
+        num1 = 0
+        num2 = 0
         for para in self.__game_data.units.items():
             if para[1].player == "Egor":
-                flag = False
-        if flag:
+                num1 += 1
+            if para[1].player == "Ivan":
+                num2 += 1
+
+        self.__game_data.num_units["Egor"] = num1
+        self.__game_data.num_units["Ivan"] = num2
+
+        # проверка на то, что в обоих игроков есть юниты
+        for para in self.__game_data.units.items():
+            if para[1].player == "Egor":
+                break
+        else:
             log.print("Ivan win!!! End of the game")
             self.__running = 0
 
         for para in self.__game_data.units.items():
             if para[1].player == "Ivan":
-                flag = False
-        if flag:
+                break
+        else:
             log.print("Egor win!!! End of the game")
             self.__running = 0
+
 
     def __do_action(self, command, name):
         if command == "quit":
@@ -106,7 +121,8 @@ class Game:
             # если есть новые команды
             if has_new_commands:
                 for command in commands:
-                    # если контроллер вернул 0, все хорошо, меняем игрока, иначе цикл повторяется с тем же игроком
+                    # если контроллер вернул 0, все хорошо, меняем игрока,
+                    # иначе цикл повторяется с тем же игроком
                     if self.__do_action(command, self.__get_player(self.__current_player)) == 0:
 
                         # перерисовка поля
