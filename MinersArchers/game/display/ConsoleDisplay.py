@@ -14,7 +14,8 @@ class ConsoleDisplay(Display):
 
     def __cell_to_str(self, i, j):
         return "[({}, {}) b:{} u:{} pl:{}]".format(i, j, self._data._cells[i][j]._building,
-                                                   self._data.units[(i, j)].render(), self._data.units[(i, j)].player)
+                                                   self._data.units[(i, j)].render(),
+                                                   self._data.units[(i, j)].player)
 
     def __draw(self):
         for i in range(self.height):

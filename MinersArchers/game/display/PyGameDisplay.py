@@ -14,7 +14,9 @@ CELL_SIZE = PyGame.CELL_SIZE
 UNIT_SIZE = PyGame.UNIT_SIZE
 
 TOOLBAR_HEIGHT = 70
-
+COLOR = (77, 77, 77)
+RED = (200, 0, 0)
+# словарь с картинками
 PICS = {"mines"    : "pics/Mine.png",
         "barrack"  : "pics/Barrack.png",
         0          : "pics/Valley.png",
@@ -27,7 +29,10 @@ PICS = {"mines"    : "pics/Mine.png",
         "action"   : "pics/Frame_cell.png",
         "button": "pics/button.png",
         "buttonHovered": "pics/buttonHovered.png",
-        "buttonSelected": "pics/buttonSelected.png",}
+        "buttonSelected": "pics/buttonSelected.png",
+        "emblem0": "pics/Emblem0.png",
+        "emblem1": "pics/Emblem1.png",
+        "coins": "pics/Coins.png"}
 
 class PyGCells:
 
@@ -120,13 +125,13 @@ class PyGUnit(pygame.sprite.Sprite):
         self.surf.blit(internal, (UNIT_SIZE * 0, UNIT_SIZE * 0))
 
         if unit.player != "died":
-            f1 = pygame.font.Font(None, 28)
-            text_level = f1.render('HP:{}'.format(unit.get_level()), 1, (0, 0, 0))
-            self.surf.blit(text_level, (UNIT_SIZE * 0.1, UNIT_SIZE * 0.8))
+            f1 = pygame.font.SysFont('comicsans', 28)
+            text_level = f1.render('lvl:{}'.format(unit.get_level()), 1, (50, 50, 50))
+            self.surf.blit(text_level, (UNIT_SIZE * 0.1 - 5, UNIT_SIZE * 0.8 - 7))
 
 
 # кнопкиииииии
-av_but_com = {0: "attack", 1: "move", 2: "create", 3: "upgrade"} # 3: "build",# 4: "upgrade"}
+av_but_com = {0: "attack", 1: "move", 2: "create", 3: "upgrade"}
 
 
 class PyGButtons(pygame.sprite.Sprite):
@@ -172,11 +177,11 @@ class Button:
             surface.blit(self.image, (0, CELL_SIZE * i))
 
         if self.text != '':
-            font = pygame.font.SysFont('comicsans', 40)
+            font = pygame.font.SysFont('comicsans', 35)
             text = font.render(self.text, 1, (77, 77, 77))
             surface.blit(text, (
-            self.x + (self.width / 2 - text.get_width() / 2),
-            self.y + (self.height / 2 - text.get_height() / 2)))
+            self.x + (self.width / 2 - text.get_width() / 2 + 2),
+            self.y + (self.height / 2 - text.get_height() / 2) - 5))
 
 
 class PyGBuilding(pygame.sprite.Sprite):
@@ -231,7 +236,8 @@ class PyGameDisplay(Display):
             self.draw("all")
 
         def positions_to_blit(x_, y_):
-            return {"unit": (CELL_SIZE * x_ + (CELL_SIZE - UNIT_SIZE) / 2, CELL_SIZE * y_ + (CELL_SIZE - UNIT_SIZE) / 2),
+            return {"unit": (CELL_SIZE * x_ + (CELL_SIZE - UNIT_SIZE) / 2,
+                             CELL_SIZE * y_ + (CELL_SIZE - UNIT_SIZE) / 2),
                     "cell": (x_ * CELL_SIZE, y_ * CELL_SIZE),
                     "action": (x_ * CELL_SIZE, y_ * CELL_SIZE)}
 
@@ -246,7 +252,7 @@ class PyGameDisplay(Display):
 
             command = self.queue[0]
 
-            log.mprint('got some commands: ' + str(command))
+            # log.mprint('got some commands: ' + str(command))
 
             if command[0] == "select":
                 if command[1][1] == "action":
@@ -271,21 +277,21 @@ class PyGameDisplay(Display):
 
         if self.redraw_buttons:
             self.redraw_buttons = False
-            self.draw("buttons")
+            self.draw("buttons", "toolbar")
 
         if selected_button is not None:
             self.redraw_buttons = True
             self.pyg_buttons.buttons[selected_button].selected = False
+
         if hovered_button is not None:
             self.redraw_buttons = True
             self.pyg_buttons.buttons[hovered_button].hovered = False
 
         if bordered_type is not None:
-            self.draw("frame")
+            self.draw("frame", "toolbar")
             frame = pygame.image.load(PICS[bordered_type]).convert_alpha()
             self.__frame_layer.blit(frame, positions_to_blit(bordered_x, bordered_y)[bordered_type])
 
-        # self.screen.fill((255, 255, 255, 255))
         self.screen.blit(self.__field_layer, (0, 0))
         self.screen.blit(self.__units_layer, (0, 0))
         self.screen.blit(self.__buttons_layer, (CELL_SIZE * self.xCells, 0))
@@ -293,8 +299,6 @@ class PyGameDisplay(Display):
         self.screen.blit(self.__toolbar_layer, (0, self.field_h))
 
         self.py_game.update_display()
-        # log.mprint('Display updated')
-
 
     def draw(self, *args):
         if "all" in args:
@@ -309,6 +313,8 @@ class PyGameDisplay(Display):
             self.create_frame_layer()
         if "buttons" in args:
             self.create_buttons_layer()
+        if "toolbar" in args:
+            self.create_toolbar_layer()
 
     def create_frame_layer(self):
         if self.__frame_layer is None:
@@ -353,6 +359,30 @@ class PyGameDisplay(Display):
         if self.__toolbar_layer is None:
             self.__toolbar_layer = pygame.Surface((self.w, TOOLBAR_HEIGHT))
 
+        score_pic = pygame.image.load(PICS["coins"]).convert_alpha()
+        embl1 = pygame.image.load(PICS["emblem0"]).convert_alpha()
+        embl2 = pygame.image.load(PICS["emblem1"]).convert_alpha()
+        # для подстветки чувака который сейчас ходит
+        color1 = RED
+        color2 = COLOR
+        if self.data.cur_step_name == 1:
+            color1 = COLOR
+            color2 = RED
+
+        font = pygame.font.SysFont('comicsans', 70)
+
+        name1 = font.render('Ivan            :{}              :{}'.format(
+            self.data.score["Ivan"], self.data.num_units["Ivan"]), 1, color1)
+
+        name2 = font.render('Egor            :{}             :{}'.format(
+            self.data.score["Egor"], self.data.num_units["Egor"]), 1, color2)
+
         self.__toolbar_layer.fill((228, 213, 126))
 
-        # здесь должен быть вывод на слой информации
+        self.__toolbar_layer.blit(name1, (8, 13))
+        self.__toolbar_layer.blit(score_pic, (CELL_SIZE, 0))
+        self.__toolbar_layer.blit(embl1, (CELL_SIZE * 2 + 12, 8))
+
+        self.__toolbar_layer.blit(name2, (CELL_SIZE * 3 + 10, 13))
+        self.__toolbar_layer.blit(score_pic, (CELL_SIZE * 4, 0))
+        self.__toolbar_layer.blit(embl2, (CELL_SIZE * 5 + 5, 6))

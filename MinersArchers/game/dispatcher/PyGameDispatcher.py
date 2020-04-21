@@ -41,7 +41,7 @@ class PyGameDispatcher(Dispatcher):
         log.mprint('PyGame Dispatcher created!')
 
     available_key_commands = {K_c: "create", K_a: "attack", K_b: "build", K_m: "move", K_u: "upgrade"}
-    available_button_commands = {0: "attack", 1: "move", 2: "create", 3: "upgrade"} #3: "build", 4: "upgrade"}
+    available_button_commands = {0: "attack", 1: "move", 2: "create", 3: "upgrade"}
 
     def check_new_commands(self) -> 'has_new_commands, commands':
         result = list()
@@ -61,7 +61,7 @@ class PyGameDispatcher(Dispatcher):
 
                 # если ждем ввода команды and если нажата допустимая клавиша
                 if self.command.status == "command" and event.key in self.available_key_commands:
-                    log.mprint("key command got")
+                    #log.mprint("key command got")
 
                     # получаем имя команды по нажатой кнопке
                     command = self.available_key_commands[event.key]
@@ -70,7 +70,7 @@ class PyGameDispatcher(Dispatcher):
                     self.command.set_command(command)
 
                 if event.key == K_SPACE and self.command.status == "maked":
-                    log.mprint("key command sent")
+                    #log.mprint("key command sent")
 
                     # отправить команду (к результату работы всей функции check_new_commands())
                     # это жопный код, не разбирайся

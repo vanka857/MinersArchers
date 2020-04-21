@@ -54,8 +54,10 @@ class PyGame:
         if x_field == int(self.w/CELL_SIZE) - 1:
             return (y_field, x_field), "action"
 
-        if x_field * CELL_WIDTH + (CELL_WIDTH - UNIT_WIDTH) / 2 < x < x_field * CELL_WIDTH + UNIT_WIDTH + (CELL_WIDTH - UNIT_WIDTH) / 2:
-            if y_field * CELL_HEIGHT + (CELL_HEIGHT - UNIT_HEIGHT) / 2 < y < y_field * CELL_HEIGHT + UNIT_HEIGHT + (CELL_HEIGHT - UNIT_HEIGHT) / 2:
+        if x_field * CELL_WIDTH + (CELL_WIDTH - UNIT_WIDTH) / 2 < x < x_field * CELL_WIDTH +\
+                UNIT_WIDTH + (CELL_WIDTH - UNIT_WIDTH) / 2:
+            if y_field * CELL_HEIGHT + (CELL_HEIGHT - UNIT_HEIGHT) / 2 < y < y_field * CELL_HEIGHT \
+                    + UNIT_HEIGHT + (CELL_HEIGHT - UNIT_HEIGHT) / 2:
                 return (y_field, x_field), "unit"
 
         return (y_field, x_field), "cell"

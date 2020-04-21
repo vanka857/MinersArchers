@@ -124,7 +124,7 @@ class Game:
                     # если контроллер вернул 0, все хорошо, меняем игрока,
                     # иначе цикл повторяется с тем же игроком
                     if self.__do_action(command, self.__get_player(self.__current_player)) == 0:
-
+                        self.__game_data.cur_step_name = not self.__game_data.cur_step_name
                         # перерисовка поля
                         self.__display.draw("units", "toolbar")
 
