@@ -1,7 +1,7 @@
-import game.game_data.units.Units as unit
-import game.game_data.cells.Cell as cell
 import math
 
+import game.game_data.cells.Cell as cell
+import game.game_data.units.Units as unit
 from game.logs.Logs import Logs
 
 # устанавливаем цвет логов
@@ -18,7 +18,7 @@ class Controller:
     # последний элемент списка должен быть именем игрока
     def main_control(self, command, name_of_player):
 
-        log.print("main controller got command:" + str(command))
+        log.mprint("main controller got command:" + str(command))
 
         # провера на то, что не залезаем за края
         h1 = int(command[1])
@@ -27,12 +27,12 @@ class Controller:
         # провера на то, что не залезаем за края
         if h1 >= self.__game_data.get_size_field()[0] or w1 >= self.__game_data.get_size_field()[1] \
                 or h1 < 0 or w1 < 0:
-            log.print("You are out of the field! Check coordinates!")
+            log.mprint("You are out of the field! Check coordinates!")
             return 1
 
         if name_of_player != self.__game_data.units[h1, w1].player and not \
                 (self.__game_data.units[h1, w1].player == "died" and command[0] == "create"):
-            log.print("You can't do it! It is not your cell or union!")
+            log.mprint("You can't do it! It is not your cell or union!")
             return 1
 
         else:
@@ -42,12 +42,12 @@ class Controller:
     def create(self, command, name):
         # если баланс 0
         if self.__game_data.score[name] == 0:
-            log.print("You have no coins to create a unit!")
+            log.mprint("You have no coins to create a unit!")
             return 1
 
         # если на этой позиции уже кто-то есть
         if self.__game_data.units[int(command[1]), int(command[2])].get_level() > 0:
-            log.print("You can upgrade your unit!")
+            log.mprint("You can upgrade your unit!")
             return 1
         else:
             # установим тип из command и левел 1
@@ -69,12 +69,12 @@ class Controller:
 
         if h2 >= self.__game_data.get_size_field()[0] or w2 >= self.__game_data.get_size_field()[1] \
                 or h2 < 0 or w2 < 0:
-            log.print("You are out of the field! Check coordinates!")
+            log.mprint("You are out of the field! Check coordinates!")
             return 1
 
         # если пытаемся напасть на себя же
         if self.__game_data.units[(h2, w2)].player == name:
-            log.print("You are trying to attack yourself!")
+            log.mprint("You are trying to attack yourself!")
             return 1
 
         if self.__game_data.units[(h2, w2)].get_level == 0:
@@ -84,7 +84,7 @@ class Controller:
             # иначе все сделано по правилам и можем нападать
             # пока считаем, что можем ходить только в 4 стороны
             if math.fabs(h1 - h2) + math.fabs(w1 - w2) > 1:
-                log.print("You can go only up, down, left and right!")
+                log.mprint("You can go only up, down, left and right!")
                 return 1
             # unit1 - нападает, unit2 - защищается
 
@@ -123,17 +123,17 @@ class Controller:
         w2 = int(command[4])
 
         if math.fabs(h1 - h2) + math.fabs(w1 - w2) > 1:
-            log.print("You can go only up, down, left and right!")
+            log.mprint("You can go only up, down, left and right!")
             return 1
 
         if h2 >= self.__game_data.get_size_field()[0] or w2 >= self.__game_data.get_size_field()[1] \
                 or h2 < 0 or w2 < 0:
-            log.print("You are out of the field! Check coordinates!")
+            log.mprint("You are out of the field! Check coordinates!")
             return 1
 
         # если там уже кто-то есть
         if self.__game_data.units[(h2, w2)].get_level() > 0:
-            log.print("You can only attack this unit!")
+            log.mprint("You can only attack this unit!")
             return 1
 
         else:
@@ -148,7 +148,7 @@ class Controller:
         w1 = int(command[2])
 
         if self.__game_data.score[name] == 0:
-            log.print("You have no coins to upgrade the unit!")
+            log.mprint("You have no coins to upgrade the unit!")
             return 1
         # и снимаем монету за создание юнита
         self.__game_data.down_score(name)
@@ -163,7 +163,7 @@ class Controller:
 
         # если на этой позиции уже кто-то есть
         if self.__game_data.units[(h1, w1)].player != name:
-            log.print("You can't build on different unit!")
+            log.mprint("You can't build on different unit!")
             return 1
         else:
             # создаем либо бараки, либо шахты

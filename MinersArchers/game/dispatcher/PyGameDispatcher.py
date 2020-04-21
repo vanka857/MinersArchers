@@ -1,13 +1,8 @@
-import pygame
 from collections.abc import Iterable
 
-from game.game_data import PyGame
-from .Dispatcher import Dispatcher
-from .Command import Command
-
+import pygame
 # первые буквы команд для взаимодействия с юнитами через клавиартуру
 from pygame.locals import (
-    K_UP,
     K_a,
     K_c,
     K_b,
@@ -17,7 +12,10 @@ from pygame.locals import (
     K_ESCAPE
 )
 
+from game.game_data import PyGame
 from game.logs.Logs import Logs
+from .Command import Command
+from .Dispatcher import Dispatcher
 
 # устанавливаем цвет логов
 log = Logs("Cyan")
@@ -40,28 +38,30 @@ class PyGameDispatcher(Dispatcher):
         self.command = Command()
         self.queue = queue
 
-        log.print('PyGame Dispatcher created!')
+        log.mprint('PyGame Dispatcher created!')
 
     available_key_commands = {K_c: "create", K_a: "attack", K_b: "build", K_m: "move", K_u: "upgrade"}
-    available_button_commands = {0: "attack", 1: "move", 2: "create", 3: "build", 4: "upgrade"}
+    available_button_commands = {0: "attack", 1: "move", 2: "create", 3: "upgrade"} #3: "build", 4: "upgrade"}
 
     def check_new_commands(self) -> 'has_new_commands, commands':
         result = list()
         has_new_commands = False
+        mouse_x = -1
+        mouse_y = -1
         for event in pygame.event.get():
 
             if event.type == pygame.QUIT:
-                # log.print_("____________'quit' command")
+                # log.mprint("____________'quit' command")
                 result.append("quit")
                 has_new_commands = True
 
             # пока что оставим поддержку ввода команд с клавиатуры
             if event.type == pygame.KEYDOWN:
-                # log.print_("____________keydown")
+                # log.mprint("____________keydown")
 
                 # если ждем ввода команды and если нажата допустимая клавиша
                 if self.command.status == "command" and event.key in self.available_key_commands:
-                    log.print("key command got")
+                    log.mprint("key command got")
 
                     # получаем имя команды по нажатой кнопке
                     command = self.available_key_commands[event.key]
@@ -70,7 +70,7 @@ class PyGameDispatcher(Dispatcher):
                     self.command.set_command(command)
 
                 if event.key == K_SPACE and self.command.status == "maked":
-                    log.print("key command sent")
+                    log.mprint("key command sent")
 
                     # отправить команду (к результату работы всей функции check_new_commands())
                     # это жопный код, не разбирайся
@@ -82,18 +82,29 @@ class PyGameDispatcher(Dispatcher):
                     self.command.clear()
 
                 if event.key == K_ESCAPE:
-                    log.print("key command delete")
+                    log.mprint("key command delete")
                     # удалить команду
                     self.command.clear()
 
+            if event.type == pygame.MOUSEMOTION:
+                mouse_x = event.pos[0]
+                mouse_y = event.pos[1]
+
+            selected_object = self.py_game.get_object_on_coords(mouse_x, mouse_y)
+            if selected_object is not None and selected_object[1] == "action":
+                self.queue.append(("hover", selected_object))
+
             if event.type == pygame.MOUSEBUTTONDOWN:
-                # log.print_("____________mouse button pressed: " + str(event.button))
+                # log.mprint("____________mouse button pressed: " + str(event.button))
                 if event.button == 1 or event.button == 3:
 
                     # получаем координаты игрового поля и тип объекта, который был выбран мышью
-                    selected_object = PyGame.get_object_on_coords(event.pos[0], event.pos[1])
+                    selected_object = self.py_game.get_object_on_coords(event.pos[0], event.pos[1])
 
-                    log.print("selecting: " + str(selected_object))
+                    if selected_object is None:
+                        continue
+
+                    log.mprint("selecting: " + str(selected_object))
                     # добавляем координаты к команде
 
                     # отправить команду о выделении (она придет в PyGameDisplay)

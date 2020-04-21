@@ -1,6 +1,7 @@
-import game.game_data.units.Units as unit
-import game.game_data.cells.Cell as cell
 import random
+
+import game.game_data.cells.Cell as cell
+import game.game_data.units.Units as unit
 
 
 class Data:

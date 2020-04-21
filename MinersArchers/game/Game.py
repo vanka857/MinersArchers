@@ -3,13 +3,13 @@
 import time
 from collections import deque
 
-from game.display.ConsoleDisplay import ConsoleDisplay
 from game.dispatcher.ConsoleDispatcher import ConsoleDispatcher
-from game.game_data.Data import Data
-from game.game_control.Controller import Controller
-from game.game_data.PyGame import PyGame
-from game.display.PyGameDisplay import PyGameDisplay
 from game.dispatcher.PyGameDispatcher import PyGameDispatcher
+from game.display.ConsoleDisplay import ConsoleDisplay
+from game.display.PyGameDisplay import PyGameDisplay
+from game.game_control.Controller import Controller
+from game.game_data.Data import Data
+from game.game_data.PyGame import PyGame
 from game.logs.Logs import Logs
 
 # устанавливаем цвет логов
@@ -30,7 +30,7 @@ class Game:
     # id игрока
     __current_player = 0
 
-    FRAME_TIME = 400
+    FRAME_TIME = 100
 
     def __init__(self, w=5, h=5, mode="console"):
         self.__mode = mode
@@ -51,7 +51,7 @@ class Game:
             self.__event_dispatcher = ConsoleDispatcher()
 
         else:
-            log.print("Incorrect init!")
+            log.mprint("Incorrect init!")
             raise Exception
 
         self.__game_data = Data(w, h)
@@ -76,14 +76,14 @@ class Game:
             if para[1].player == "Egor":
                 break
         else:
-            log.print("Ivan win!!! End of the game")
+            log.mprint("Ivan win!!! End of the game")
             self.__running = 0
 
         for para in self.__game_data.units.items():
             if para[1].player == "Ivan":
                 break
         else:
-            log.print("Egor win!!! End of the game")
+            log.mprint("Egor win!!! End of the game")
             self.__running = 0
 
 
@@ -105,8 +105,8 @@ class Game:
 
     # начало игры
     def start(self):
-        log.print("-------------------------------------------------------------------")
-        log.print("Game has started!")
+        log.mprint("-------------------------------------------------------------------")
+        log.mprint("Game has started!")
 
         # пока что Draw видит все поле
         self.__display.set_data(self.__game_data)
@@ -126,11 +126,11 @@ class Game:
                     if self.__do_action(command, self.__get_player(self.__current_player)) == 0:
 
                         # перерисовка поля
-                        self.__display.draw()
+                        self.__display.draw("units", "toolbar")
 
                         # когда ход игрока закончен, меняем текущего игрока
                         self.__change_player()
-                        log.print("player changed to:" + self.__get_player(self.__current_player))
+                        log.mprint("player changed to:" + self.__get_player(self.__current_player))
 
             # для вызова self.__display.update() не чаще, чем каждые self.FRAME_TIME миллисекунд
             current_time = time.time()
