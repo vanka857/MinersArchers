@@ -2,6 +2,7 @@ import game.game_data.units.Units as unit
 import game.game_data.cells.Cell as cell
 import random
 
+
 class Data:
     __width = 0
     __height = 0
@@ -15,11 +16,10 @@ class Data:
         # будем хранить юнитов в словаре, ключ - пара координат
         self.units = dict()
         self._cells = [[]]
-        # балланс игроков
-        self.score_player_1 = 0
-        self.score_player_2 = 0
 
-        # print('Creating game data:')
+        #счет
+        self.score = {"Egor": 0, "Ivan": 0}
+        self.num_units = {"Egor": 0, "Ivan": 0}
 
         # сделаем мертвого юнита, на которого будем ссылаться при удалении
         # у него особый игрок died и уровень - 0
@@ -29,13 +29,13 @@ class Data:
         for i in range(h):
             for j in range(w):
                 ran = random.randint(0, 5)
-                # пока что у всех уровень 5
+                # пока что у всех уровень 3
                 if ran == 4:
                     self.units[(i, j)] = unit_creator.create_unit("died", "warriors", 0)
                 elif ran % 2 == 0:
-                    self.units[(i, j)] = unit_creator.create_unit("Ivan", "archers", 5)
+                    self.units[(i, j)] = unit_creator.create_unit("Ivan", "archers", 3)
                 else:
-                    self.units[(i, j)] = unit_creator.create_unit("Egor", "warriors", 5)
+                    self.units[(i, j)] = unit_creator.create_unit("Egor", "warriors", 3)
 
         for i in range(h):
             self._cells.append([])
@@ -46,3 +46,9 @@ class Data:
     # возвращает размеры поля
     def get_size_field(self):
         return self.__height, self.__width
+
+    def up_score(self, name):
+        self.score[name] += 1
+
+    def down_score(self, name):
+        self.score[name] -= 1

@@ -43,6 +43,7 @@ class PyGameDispatcher(Dispatcher):
         log.print('PyGame Dispatcher created!')
 
     available_key_commands = {K_c: "create", K_a: "attack", K_b: "build", K_m: "move", K_u: "upgrade"}
+    available_button_commands = {0: "attack", 1: "move", 2: "create", 3: "build", 4: "upgrade"}
 
     def check_new_commands(self) -> 'has_new_commands, commands':
         result = list()
@@ -51,9 +52,10 @@ class PyGameDispatcher(Dispatcher):
 
             if event.type == pygame.QUIT:
                 # log.print_("____________'quit' command")
-                result.append(("quit"))
+                result.append("quit")
                 has_new_commands = True
 
+            # пока что оставим поддержку ввода команд с клавиатуры
             if event.type == pygame.KEYDOWN:
                 # log.print_("____________keydown")
 
@@ -87,6 +89,7 @@ class PyGameDispatcher(Dispatcher):
             if event.type == pygame.MOUSEBUTTONDOWN:
                 # log.print_("____________mouse button pressed: " + str(event.button))
                 if event.button == 1 or event.button == 3:
+
                     # получаем координаты игрового поля и тип объекта, который был выбран мышью
                     selected_object = PyGame.get_object_on_coords(event.pos[0], event.pos[1])
 
@@ -96,10 +99,19 @@ class PyGameDispatcher(Dispatcher):
                     # отправить команду о выделении (она придет в PyGameDisplay)
                     self.queue.append(("select", selected_object))
 
-                    # если ожидается ввод ккординат
-                    if self.command.status == "coords":
+                    # если ожидаем команду и получаем ее
+                    if self.command.status == "command" and selected_object[1] == "action":
+                        # получаем имя команды по нажатой кнопке
+                        command = self.available_button_commands[selected_object[0][0]]
 
-                        # добавляем координаты к команде
-                        self.command.append_coords(selected_object[0])
+                        # устанавливаем команду
+                        self.command.set_command(command)
+                    else:
+
+                        # если ожидается ввод ккординат
+                        if self.command.status == "coords":
+
+                            # добавляем координаты к команде
+                            self.command.append_coords(selected_object[0])
 
         return has_new_commands, result

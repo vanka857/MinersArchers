@@ -20,6 +20,10 @@ def get_object_on_coords(x, y):
     y_field = int(y / CELL_HEIGHT)
     x_field = int(x / CELL_WIDTH)
     # теперь мы знаем, какой cell, узнаем, попали в unit или нет
+    # если нажали левее поля
+    if x_field == 5:
+        return (y_field, x_field), "action"
+
     if (x_field + 1 / 4) * CELL_WIDTH < x < (x_field + 3 / 4) * CELL_WIDTH:
         if (y_field + 1 / 4) * CELL_HEIGHT < y < (y_field + 3 / 4) * CELL_HEIGHT:
             return (y_field, x_field), "unit"

@@ -49,7 +49,8 @@ class ConsoleDispatcher(Dispatcher):
     def attack(self):
         print("from (..,..) and the (..,..)")
         attack_ = self.get_coords(4)
-        print("You are going to attack from ({}, {}) the ({}, {})".format(attack_[0], attack_[1], attack_[2], attack_[3]))
+        print("You are going to attack from ({}, {}) the ({}, {})".format(attack_[0],
+                                                                          attack_[1], attack_[2], attack_[3]))
         return "attack", attack_[0], attack_[1], attack_[2], attack_[3]
 
     def create(self):
@@ -61,7 +62,8 @@ class ConsoleDispatcher(Dispatcher):
     def move(self):
         print("from (..,..) and to (..,..)")
         move_ = self.get_coords(4)
-        print("You are going to move from ({}, {}) to ({}, {})".format(move_[0], move_[1], move_[2], move_[3]))
+        print("You are going to move from ({}, {}) to ({}, {})".format(move_[0],
+                                                                       move_[1], move_[2], move_[3]))
         return "move", move_[0], move_[1], move_[2], move_[3]
 
     def upgrade(self):

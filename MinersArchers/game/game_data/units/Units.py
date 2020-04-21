@@ -72,6 +72,7 @@ class UCI(ABC):
         raise NotImplementedError()
 
 
+# это паттерн фабрика, пишется так для читаемости
 class Creator(UCI):
     def create_unit(self, inp_player, inp_type, inp_level=0):
         if inp_type == "warriors":
@@ -81,4 +82,4 @@ class Creator(UCI):
             return Archer(inp_player, inp_level, "archers")
 
         if inp_type == "miners":
-            return Miner(inp_player, inp_level, "archers")
+            return Miner(inp_player, inp_level, "miners")
