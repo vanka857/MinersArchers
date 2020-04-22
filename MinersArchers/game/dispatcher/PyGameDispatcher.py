@@ -37,6 +37,8 @@ class PyGameDispatcher(Dispatcher):
         self.py_game = py_game_
         self.command = Command()
         self.queue = queue
+        self.mouse_x = -1
+        self.mouse_y = -1
 
         log.mprint('PyGame Dispatcher created!')
 
@@ -46,8 +48,7 @@ class PyGameDispatcher(Dispatcher):
     def check_new_commands(self) -> 'has_new_commands, commands':
         result = list()
         has_new_commands = False
-        mouse_x = -1
-        mouse_y = -1
+
         for event in pygame.event.get():
 
             if event.type == pygame.QUIT:
@@ -61,7 +62,7 @@ class PyGameDispatcher(Dispatcher):
 
                 # если ждем ввода команды and если нажата допустимая клавиша
                 if self.command.status == "command" and event.key in self.available_key_commands:
-                    #log.mprint("key command got")
+                    # log.mprint("key command got")
 
                     # получаем имя команды по нажатой кнопке
                     command = self.available_key_commands[event.key]
@@ -69,30 +70,41 @@ class PyGameDispatcher(Dispatcher):
                     # устанавливаем команду
                     self.command.set_command(command)
 
-                if event.key == K_SPACE and self.command.status == "maked":
-                    #log.mprint("key command sent")
-
-                    # отправить команду (к результату работы всей функции check_new_commands())
-                    # это жопный код, не разбирайся
-                    has_new_commands = True
-                    all_coords = list(all_elements(self.command.coords))
-                    result.append((self.command.command, *all_coords))
-
-                    # когда отправили команду, её можно сбросить
-                    self.command.clear()
+                # if event.key == K_SPACE and self.command.status == "maked":
+                #     #log.mprint("key command sent")
+                #
+                #     # отправить команду (к результату работы всей функции check_new_commands())
+                #     # это жопный код, не разбирайся
+                #     has_new_commands = True
+                #     all_coords = list(all_elements(self.command.coords))
+                #     result.append((self.command.command, *all_coords))
+                #
+                #     # когда отправили команду, её можно сбросить
+                #     self.command.clear()
+                #     self.queue.append(("deselectAll",))
 
                 if event.key == K_ESCAPE:
                     log.mprint("key command delete")
                     # удалить команду
                     self.command.clear()
+                    self.queue.append(("deselectAll",))
+
+            if self.command.status == "maked":
+                # log.mprint("key command sent")
+
+                # отправить команду (к результату работы всей функции check_new_commands())
+                # это жопный код, не разбирайся
+                has_new_commands = True
+                all_coords = list(all_elements(self.command.coords))
+                result.append((self.command.command, *all_coords))
+
+                # когда отправили команду, её можно сбросить
+                self.command.clear()
+                self.queue.append(("deselectAll",))
 
             if event.type == pygame.MOUSEMOTION:
-                mouse_x = event.pos[0]
-                mouse_y = event.pos[1]
-
-            selected_object = self.py_game.get_object_on_coords(mouse_x, mouse_y)
-            if selected_object is not None and selected_object[1] == "action":
-                self.queue.append(("hover", selected_object))
+                self.mouse_x = event.pos[0]
+                self.mouse_y = event.pos[1]
 
             if event.type == pygame.MOUSEBUTTONDOWN:
                 # log.mprint("____________mouse button pressed: " + str(event.button))
@@ -104,25 +116,26 @@ class PyGameDispatcher(Dispatcher):
                     if selected_object is None:
                         continue
 
-                    log.mprint("selecting: " + str(selected_object))
+                    # log.mprint("selecting: " + str(selected_object))
                     # добавляем координаты к команде
 
                     # отправить команду о выделении (она придет в PyGameDisplay)
                     self.queue.append(("select", selected_object))
 
                     # если ожидаем команду и получаем ее
-                    if self.command.status == "command" and selected_object[1] == "action":
+                    if selected_object[1] == "action":
                         # получаем имя команды по нажатой кнопке
                         command = self.available_button_commands[selected_object[0][0]]
 
                         # устанавливаем команду
                         self.command.set_command(command)
-                    else:
+                    elif selected_object[1] in {"cell", "unit"}:
 
-                        # если ожидается ввод ккординат
-                        if self.command.status == "coords":
+                        # добавляем координаты к команде
+                        self.command.append_coords(selected_object[0])
 
-                            # добавляем координаты к команде
-                            self.command.append_coords(selected_object[0])
+        selected_object = self.py_game.get_object_on_coords(self.mouse_x, self.mouse_y)
+        if selected_object is not None and selected_object[1] == "action":
+            self.queue.append(("hover", selected_object))
 
         return has_new_commands, result

@@ -14,7 +14,7 @@ CELL_SIZE = PyGame.CELL_SIZE
 UNIT_SIZE = PyGame.UNIT_SIZE
 
 TOOLBAR_HEIGHT = 70
-COLOR = (77, 77, 77)
+COLOR = (100, 100, 100)
 RED = (200, 0, 0)
 # словарь с картинками
 PICS = {"mines"    : "pics/Mine.png",
@@ -268,6 +268,11 @@ class PyGameDisplay(Display):
                     self.redraw_buttons = True
                     hovered_button = command[1][0][0]
 
+            if command[0] == "deselectAll":
+                    self.redraw_buttons = True
+                    bordered_type = None
+                    self.draw("frame")
+
             self.queue.popleft()
 
         if selected_button is not None:
@@ -277,7 +282,7 @@ class PyGameDisplay(Display):
 
         if self.redraw_buttons:
             self.redraw_buttons = False
-            self.draw("buttons", "toolbar")
+            self.draw("buttons") #, "toolbar")
 
         if selected_button is not None:
             self.redraw_buttons = True
@@ -288,7 +293,7 @@ class PyGameDisplay(Display):
             self.pyg_buttons.buttons[hovered_button].hovered = False
 
         if bordered_type is not None:
-            self.draw("frame", "toolbar")
+            self.draw("frame") #, "toolbar")
             frame = pygame.image.load(PICS[bordered_type]).convert_alpha()
             self.__frame_layer.blit(frame, positions_to_blit(bordered_x, bordered_y)[bordered_type])
 

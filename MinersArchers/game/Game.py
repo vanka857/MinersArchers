@@ -86,7 +86,6 @@ class Game:
             log.mprint("Egor win!!! End of the game")
             self.__running = 0
 
-
     def __do_action(self, command, name):
         if command == "quit":
             # завершение программы
@@ -110,6 +109,8 @@ class Game:
 
         # пока что Draw видит все поле
         self.__display.set_data(self.__game_data)
+        # TODO здесь не должно стоять if_end()! но сейчас без этого количество воинов не отображается при старте
+        self.if_end()
         self.__display.update()
 
         last_frame_time = time.time()
