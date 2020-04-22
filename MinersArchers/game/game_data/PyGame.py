@@ -44,16 +44,18 @@ class PyGame:
         y_field = int(y / CELL_HEIGHT)
         x_field = int(x / CELL_WIDTH)
         # теперь мы знаем, какой cell, узнаем, попали в unit или нет
-        # если нажали левее поляР
 
+        # если нажали правее или ниже игрового поля
         if x_field >= int(self.w / CELL_WIDTH):
             return None
         if y_field >= int(self.h / CELL_HEIGHT):
             return None
 
+        # если нажали на что-то в последнем стоблике, значит, это команда
         if x_field == int(self.w/CELL_SIZE) - 1:
             return (y_field, x_field), "action"
 
+        # иначе определяем cell это или unit
         if x_field * CELL_WIDTH + (CELL_WIDTH - UNIT_WIDTH) / 2 < x < x_field * CELL_WIDTH +\
                 UNIT_WIDTH + (CELL_WIDTH - UNIT_WIDTH) / 2:
             if y_field * CELL_HEIGHT + (CELL_HEIGHT - UNIT_HEIGHT) / 2 < y < y_field * CELL_HEIGHT \

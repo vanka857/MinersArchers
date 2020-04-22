@@ -37,6 +37,7 @@ class Controller:
 
         else:
             f = getattr(Controller, command[0])
+            # исполняем команду (функцию с соответствующим именем) по названию команды
             return f(self, command, name_of_player)
 
     def create(self, command, name):

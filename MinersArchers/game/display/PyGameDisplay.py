@@ -17,22 +17,23 @@ TOOLBAR_HEIGHT = 70
 COLOR = (100, 100, 100)
 RED = (200, 0, 0)
 # словарь с картинками
-PICS = {"mines"    : "pics/Mine.png",
-        "barrack"  : "pics/Barrack.png",
-        0          : "pics/Valley.png",
-        1          : "pics/Mountain.png",
-        "archers"  : "pics/Archer.png",
-        "warriors" : "pics/Warrior.png",
-        "miners"   : "pics/Miner.png",
-        "unit"     : "pics/Frame_unit.png",
-        "cell"     : "pics/Frame_cell.png",
-        "action"   : "pics/Frame_cell.png",
+PICS = {"mines": "pics/Mine.png",
+        "barrack": "pics/Barrack.png",
+        0: "pics/Valley.png",
+        1: "pics/Mountain.png",
+        "archers": "pics/Archer.png",
+        "warriors": "pics/Warrior.png",
+        "miners": "pics/Miner.png",
+        "unit": "pics/Frame_unit.png",
+        "cell": "pics/Frame_cell.png",
+        "action": "pics/Frame_cell.png",
         "button": "pics/button.png",
         "buttonHovered": "pics/buttonHovered.png",
         "buttonSelected": "pics/buttonSelected.png",
         "emblem0": "pics/Emblem0.png",
         "emblem1": "pics/Emblem1.png",
         "coins": "pics/Coins.png"}
+
 
 class PyGCells:
 
@@ -180,12 +181,13 @@ class Button:
             font = pygame.font.SysFont('comicsans', 35)
             text = font.render(self.text, 1, (77, 77, 77))
             surface.blit(text, (
-            self.x + (self.width / 2 - text.get_width() / 2 + 2),
-            self.y + (self.height / 2 - text.get_height() / 2) - 5))
+                self.x + (self.width / 2 - text.get_width() / 2 + 2),
+                self.y + (self.height / 2 - text.get_height() / 2) - 5))
 
 
 class PyGBuilding(pygame.sprite.Sprite):
     pass
+
 
 class PyGameDisplay(Display):
 
@@ -269,9 +271,9 @@ class PyGameDisplay(Display):
                     hovered_button = command[1][0][0]
 
             if command[0] == "deselectAll":
-                    self.redraw_buttons = True
-                    bordered_type = None
-                    self.draw("frame")
+                self.redraw_buttons = True
+                bordered_type = None
+                self.draw("frame")
 
             self.queue.popleft()
 
@@ -282,7 +284,7 @@ class PyGameDisplay(Display):
 
         if self.redraw_buttons:
             self.redraw_buttons = False
-            self.draw("buttons") #, "toolbar")
+            self.draw("buttons")  # , "toolbar")
 
         if selected_button is not None:
             self.redraw_buttons = True
@@ -293,7 +295,7 @@ class PyGameDisplay(Display):
             self.pyg_buttons.buttons[hovered_button].hovered = False
 
         if bordered_type is not None:
-            self.draw("frame") #, "toolbar")
+            self.draw("frame")  # , "toolbar")
             frame = pygame.image.load(PICS[bordered_type]).convert_alpha()
             self.__frame_layer.blit(frame, positions_to_blit(bordered_x, bordered_y)[bordered_type])
 
