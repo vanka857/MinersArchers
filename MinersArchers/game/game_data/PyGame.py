@@ -5,25 +5,14 @@ from game.logs.Logs import Logs
 log = Logs()
 
 # размер одной ячейки(квадратной) в пикселях
-CELL_SIZE = 200
+CELL_SIZE = 202
 UNIT_SIZE = 100
 
 CELL_HEIGHT = CELL_SIZE
 CELL_WIDTH = CELL_SIZE
 
-UNIT_HEIGHT = CELL_HEIGHT / 2
-UNIT_WIDTH = CELL_WIDTH / 2
-
-
-def get_object_on_coords(x, y):
-    # вводим ккординаты на нашем поле
-    y_field = int(y / CELL_HEIGHT)
-    x_field = int(x / CELL_WIDTH)
-    # теперь мы знаем, какой cell, узнаем, попали в unit или нет
-    if (x_field + 1 / 4) * CELL_WIDTH < x < (x_field + 3 / 4) * CELL_WIDTH:
-        if (y_field + 1 / 4) * CELL_HEIGHT < y < (y_field + 3 / 4) * CELL_HEIGHT:
-            return (y_field, x_field), "unit"
-    return (y_field, x_field), "cell"
+UNIT_HEIGHT = UNIT_SIZE
+UNIT_WIDTH = UNIT_SIZE
 
 
 # класс, где реализован ввод + ввывод + обработка некоторых команд на pygame
@@ -33,9 +22,14 @@ class PyGame:
         pygame.init()
         # просто создаем переменную
         self.__screen = None
-        log.print("PyGame initialized")
+        
+        self.w = None
+        self.h = None
+        log.mprint("PyGame initialized")
 
     def init_screen(self, w, h):
+        self.w = w
+        self.h = h
         self.__screen = pygame.display.set_mode((w, h))
 
     def get_screen(self):
@@ -44,3 +38,28 @@ class PyGame:
     def update_display(self):
         # Flip the display
         pygame.display.flip()
+
+    def get_object_on_coords(self, x, y):
+        # вводим ккординаты на нашем поле
+        y_field = int(y / CELL_HEIGHT)
+        x_field = int(x / CELL_WIDTH)
+        # теперь мы знаем, какой cell, узнаем, попали в unit или нет
+
+        # если нажали правее или ниже игрового поля
+        if x_field >= int(self.w / CELL_WIDTH):
+            return None
+        if y_field >= int(self.h / CELL_HEIGHT):
+            return None
+
+        # если нажали на что-то в последнем стоблике, значит, это команда
+        if x_field == int(self.w/CELL_SIZE) - 1:
+            return (y_field, x_field), "action"
+
+        # иначе определяем cell это или unit
+        if x_field * CELL_WIDTH + (CELL_WIDTH - UNIT_WIDTH) / 2 < x < x_field * CELL_WIDTH +\
+                UNIT_WIDTH + (CELL_WIDTH - UNIT_WIDTH) / 2:
+            if y_field * CELL_HEIGHT + (CELL_HEIGHT - UNIT_HEIGHT) / 2 < y < y_field * CELL_HEIGHT \
+                    + UNIT_HEIGHT + (CELL_HEIGHT - UNIT_HEIGHT) / 2:
+                return (y_field, x_field), "unit"
+
+        return (y_field, x_field), "cell"

@@ -1,3 +1,4 @@
+# coding=utf-8
 import inspect
 
 # Класс для вывода логов в консоль. Выводится в таком формате цветным текстом:
@@ -26,7 +27,7 @@ class Logs:
         self.color_name = color_name
         pass
 
-    def print(self, *args, **kwargs):
+    def mprint(self, *args, **kwargs):
         # Это для получения того места (файла), откуда была вызвана функция Log()::print
         curframe = inspect.currentframe()
         calframe = inspect.getouterframes(curframe, 2)

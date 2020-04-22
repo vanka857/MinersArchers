@@ -1,6 +1,3 @@
-from game.game_data.Data import Data
-
-
 class DisplayData:
     __game_data = 0
 
