@@ -19,8 +19,11 @@ class Data:
         self._cells = [[]]
 
         #счет
-        self.score = {"Egor": 0, "Ivan": 0}
+        self.score = {"Egor": 3, "Ivan": 3}
         self.num_units = {"Egor": 0, "Ivan": 0}
+
+        #показывает, чей сейчас ход
+        self.cur_step_name = False
 
         # сделаем мертвого юнита, на которого будем ссылаться при удалении
         # у него особый игрок died и уровень - 0
