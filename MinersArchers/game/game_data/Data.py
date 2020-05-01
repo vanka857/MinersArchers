@@ -16,13 +16,13 @@ class Data:
 
         # будем хранить юнитов в словаре, ключ - пара координат
         self.units = dict()
-        self._cells = [[]]
+        self._cells = dict()
 
         #счет
         self.score = {"Egor": 3, "Ivan": 3}
         self.num_units = {"Egor": 0, "Ivan": 0}
 
-        #показывает, чей сейчас ход
+        # показывает, чей сейчас ход
         self.cur_step_name = False
 
         # сделаем мертвого юнита, на которого будем ссылаться при удалении
@@ -42,10 +42,8 @@ class Data:
                     self.units[(i, j)] = unit_creator.create_unit("Egor", "warriors", 3)
 
         for i in range(h):
-            self._cells.append([])
             for j in range(w):
-                self._cells[i].append([])
-                self._cells[i][j] = cell.Cell()
+                self._cells[(i, j)] = cell.Cell()
 
     # возвращает размеры поля
     def get_size_field(self):

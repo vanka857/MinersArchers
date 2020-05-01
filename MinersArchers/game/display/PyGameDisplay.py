@@ -34,76 +34,49 @@ PICS = {"mines": "pics/Mine.png",
         "emblem1": "pics/Emblem1.png",
         "coins": "pics/Coins.png"}
 
-
-class PyGCells:
-
-    def __init__(self, cells):
-        n = 0
-
-        self.cells = list()
-        self.cell_id_on_coord = dict()
-
-        for i in range(len(cells)):
-            for j in range(len(cells[i])):
-                # create PyGCell from cell[i][j] (class game_data.Cell)
-                # and append it to self.cells (class PyGCell)
-                # меняем координаты местами. Так удобнее будет в pygame.
-                # Сначала позиция по горизонтали(ширине),
-                # потом - по вертикали(высоте)
-                pyg_cell = PyGCell(cells[i][j], n, j, i)
-                self.cells.append(pyg_cell)
-                # меняем координаты местами. Так удобнее будет в pygame.
-                # Сначала позиция по горизонтали(ширине),
-                # потом - по вертикали(высоте)
-                self.cell_id_on_coord[(j, i)] = n
-                n += 1
-
-    def create_coord_for_cell(self, x, y):
-        return CELL_SIZE * x, CELL_SIZE * y
-
-    def render(self, dest):
-        for pyg_cell in self.cells:
-            dest.blit(pyg_cell.surf, self.create_coord_for_cell(pyg_cell.x, pyg_cell.y))
+# новый класс
 
 
-class PyGCell(pygame.sprite.Sprite):
-    def __init__(self, cell, id__, x_, y_):
-        self.id_ = id__
-        self.x = x_
-        self.y = y_
-        super().__init__()
-        self.surf = pygame.Surface((CELL_SIZE, CELL_SIZE))
+class Object(pygame.sprite.Sprite):
+    def __init__(self, y, x, height, width, image):
+        # инициализация базового класса
+        super(Object, self).__init__()
+        # load image...
+        self.y = y
+        self.x = x
+        self._height = height
+        self._width = width
+        self._image = image
+        self._hovered = False
+        self._selected = False
 
-        # пока что расставляем текстуры в шахматном порядке
-        internal = pygame.image.load(PICS[(self.x + self.y) % 2]).convert_alpha()
-
-        self.surf.blit(internal, (CELL_SIZE * 0, CELL_SIZE * 0))
+        self.surf = pygame.Surface((self._height, self._width))
+        internal = pygame.image.load(PICS[image]).convert_alpha()
+        self.surf.blit(internal, (0, 0))
         self.rect = self.surf.get_rect()
 
+    def getCoords(self):
+        return self._y, self._x
 
-class PyGUnits:
+    def getSize(self):
+        return self._height, self._width
 
-    def __init__(self, units):
-        n = 0
+    # а нужно ли??
+    def loadImage(self):
+        pass
 
-        self.units = list()
-        self.units_id_on_coord = dict()
+    def draw(self, surface, pos=None):
+        if not pos:
+            pos = (self._y, self._x)
 
-        # перевод словаря из юнитов из game_data в двмумерный список
-        for (i_, j_) in units.keys():
-            unit = units[(i_, j_)]
-            pyg_unit = PyGUnit(unit, j_, i_, unit.level, n)
+        surface.blit(self.surf, pos)
 
-            self.units.append(pyg_unit)
-            self.units_id_on_coord[(j_, i_)] = pyg_unit
-            n += 1
 
-    def create_coord_for_unit(self, x, y):
-        return CELL_SIZE * x + (CELL_SIZE - UNIT_SIZE) / 2, CELL_SIZE * y + (CELL_SIZE - UNIT_SIZE) / 2
+class PyGCell(Object):
 
-    def render(self, dest):
-        for pyg_unit in self.units:
-            dest.blit(pyg_unit.surf, self.create_coord_for_unit(pyg_unit.x, pyg_unit.y))
+    def __init__(self, cell, id__, x_, y_):
+        self.id_ = id__
+        super().__init__(y_, x_, CELL_SIZE, CELL_SIZE, 1)
 
 
 class PyGUnit(pygame.sprite.Sprite):
@@ -131,7 +104,74 @@ class PyGUnit(pygame.sprite.Sprite):
             self.surf.blit(text_level, (UNIT_SIZE * 0.1 - 5, UNIT_SIZE * 0.8 - 7))
 
 
-# кнопкиииииии
+class Group(pygame.sprite.Group):
+
+    def __init__(self, new_objects=()):
+        # инициализация базового класса
+        super(Object, self).__init__()
+
+        self.objects = new_objects
+
+    def addObject(self, new_object):
+        self.objects.append(new_object)
+
+    def update(self, differences):
+        dif = self.getDif()
+
+    def getDif(self, old_hash=[]):
+        res = []
+        for i in range(len(self.objects)):
+            if self.objects[i].__hash__() != old_hash[i]:
+                res.append(i)
+        return res
+
+
+class PyGCells:
+    def __init__(self, cells):
+        n = 0
+        self.cells = list()
+        self.cell_id_on_coord = dict()
+
+        for (i, j) in cells.keys():
+            pyg_cell = PyGCell(cells[(i, j)], n, j, i)
+            self.cells.append(pyg_cell)
+            # меняем координаты местами. Так удобнее будет в pygame.
+            self.cell_id_on_coord[(j, i)] = n
+            n += 1
+
+    def create_coord(self, x, y):
+        return CELL_SIZE * x, CELL_SIZE * y
+
+    def render(self, dest):
+        for pyg_cell in self.cells:
+            dest.blit(pyg_cell.surf, self.create_coord(pyg_cell.x, pyg_cell.y))
+
+
+class PyGUnits:
+
+    def __init__(self, units):
+        n = 0
+
+        self.units = list()
+        self.units_id_on_coord = dict()
+
+        # перевод словаря из юнитов из game_data в двмумерный список
+        for (i, j) in units.keys():
+            unit = units[(i, j)]
+            pyg_unit = PyGUnit(unit, j, i, unit.level, n)
+
+            self.units.append(pyg_unit)
+            self.units_id_on_coord[(j, i)] = pyg_unit
+            n += 1
+
+    def create_coord(self, x, y):
+        return CELL_SIZE * x + (CELL_SIZE - UNIT_SIZE) / 2, CELL_SIZE * y + (CELL_SIZE - UNIT_SIZE) / 2
+
+    def render(self, dest):
+        for pyg_unit in self.units:
+            dest.blit(pyg_unit.surf, self.create_coord(pyg_unit.x, pyg_unit.y))
+
+
 av_but_com = {0: "attack", 1: "move", 2: "create", 3: "upgrade"}
 
 
@@ -166,8 +206,6 @@ class Button:
 
     def draw(self, surface, i):
 
-        # surface.fill((255,255,255,255))
-
         if self.selected:
             surface.blit(self.selected_image, (0, CELL_SIZE * i))
 
@@ -183,10 +221,6 @@ class Button:
             surface.blit(text, (
                 self.x + (self.width / 2 - text.get_width() / 2 + 2),
                 self.y + (self.height / 2 - text.get_height() / 2) - 5))
-
-
-class PyGBuilding(pygame.sprite.Sprite):
-    pass
 
 
 class PyGameDisplay(Display):
@@ -361,6 +395,8 @@ class PyGameDisplay(Display):
         self.__field_layer = pygame.Surface((self.field_w, self.field_h))
         # их отрисовка
         self.pyg_cells.render(self.__field_layer)
+
+    # отрисовка toolbar
 
     def create_toolbar_layer(self):
         if self.__toolbar_layer is None:

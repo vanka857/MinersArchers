@@ -56,6 +56,7 @@ class Game:
 
         self.__game_data = Data(w, h)
         # у контроллера есть все данные об игре
+        # у контроллера есть все данные об игре
         self.__game_control = Controller(self.__game_data)
 
     def if_end(self):
