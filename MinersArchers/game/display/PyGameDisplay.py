@@ -4,6 +4,7 @@ import pygame
 
 from game.display.Display import Display
 from game.game_data import PyGame
+from game.game_data.units import Units
 from game.logs.Logs import Logs
 
 # устанавливаем цвет логов
