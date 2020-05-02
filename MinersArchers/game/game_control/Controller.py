@@ -55,7 +55,7 @@ class Controller:
             unit_creator = unit.Creator()
             # !!!пока у разных игроков разные типы - следовательно
             self.__game_data.units[(int(command[1]), int(command[2]))] = \
-                unit_creator.create_unit(name, TIPS[name], 1)
+                unit_creator.create_unit(name, TIPS[name], int(command[1]), int(command[2]), 1)
             # и снимаем монету за создание юнита
             self.__game_data.down_score(name)
             return 0
@@ -96,8 +96,8 @@ class Controller:
 
             if level1 > level2:
                 unit1.set_level(level1 - level2)
+                unit1.set_cords(h2, w2)
                 self.__game_data.units[(h2, w2)] = unit1
-                # self.__game_data._cells[h2][w2]._building = "none"
                 self.__game_data.units[(h1, w1)] = self.__game_data.units[(-1, -1)]
                 # увеличиваем его очки
                 for i in range(level2):
@@ -139,6 +139,7 @@ class Controller:
 
         else:
             unit1 = self.__game_data.units[(h1, w1)]
+            unit1.set_cords(h2, w2)
             self.__game_data.units[(h2, w2)] = unit1
             self.__game_data.units[(h1, w1)] = self.__game_data.units[(-1, -1)]
 

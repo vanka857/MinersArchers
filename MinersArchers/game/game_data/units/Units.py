@@ -3,12 +3,13 @@ from abc import ABC, abstractmethod
 
 # interface of Unit
 class Unit(ABC):
-    def __init__(self, inp_player, inp_level, inp_type="none"):
+    def __init__(self, inp_player, inp_level, inp_type, y, x):
         self.player = inp_player
         self.level = inp_level
         self.type = inp_type
+        self._y = y
+        self._x = x
 
-    @abstractmethod
     def action(self, **kwargs):
         raise NotImplementedError()
 
@@ -17,6 +18,19 @@ class Unit(ABC):
 
     def get_level(self):
         return self.level
+
+    def get_cords(self):
+        return self._y, self._x
+
+    def get_player(self):
+        return self.player
+
+    def set_cords(self, y, x):
+        self._y = y
+        self._x = x
+
+    def get_type(self):
+        return self.type
 
     # drawing
     def render(self):
@@ -31,7 +45,6 @@ class Unit(ABC):
 class Warrior(Unit):
     def action(self, enemy):
         pass
-        # attack
 
     def render(self):
         return "Wa{} ".format(self.level)
@@ -43,7 +56,6 @@ class Warrior(Unit):
 class Archer(Unit):
     def action(self, enemy):
         pass
-        # attack
 
     def render(self):
         return "Ar{} ".format(self.level)
@@ -74,12 +86,12 @@ class UCI(ABC):
 
 # это паттерн фабрика, пишется так для читаемости
 class Creator(UCI):
-    def create_unit(self, inp_player, inp_type, inp_level=0):
+    def create_unit(self, inp_player, inp_type, y, x, inp_level=0):
         if inp_type == "warriors":
-            return Warrior(inp_player, inp_level, "warriors")
+            return Warrior(inp_player, inp_level, "warriors", y, x)
 
         if inp_type == "archers":
-            return Archer(inp_player, inp_level, "archers")
+            return Archer(inp_player, inp_level, "archers", y, x)
 
         if inp_type == "miners":
-            return Miner(inp_player, inp_level, "miners")
+            return Miner(inp_player, inp_level, "miners", y, x)

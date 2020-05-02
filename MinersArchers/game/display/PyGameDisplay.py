@@ -34,148 +34,156 @@ PICS = {"mines": "pics/Mine.png",
         "emblem1": "pics/Emblem1.png",
         "coins": "pics/Coins.png"}
 
-# новый класс
 
-
+# новый родительский класс для Button PyGUnit и PyGCell
 class Object(pygame.sprite.Sprite):
-    def __init__(self, y, x, height, width, image):
+    def __init__(self, id, x, y, width, height, image):
         # инициализация базового класса
-        super(Object, self).__init__()
+        super().__init__()
         # load image...
-        self.y = y
-        self.x = x
+        self._id = id
+        # эти в пикселях
+        self._y_pix = y
+        self._x_pix = x
+
         self._height = height
         self._width = width
         self._image = image
-        self._hovered = False
-        self._selected = False
 
-        self.surf = pygame.Surface((self._height, self._width))
-        internal = pygame.image.load(PICS[image]).convert_alpha()
+        self.surf = None
+        self.rect = None
+
+    def get_coords(self):
+        return self._x_pix, self._y_pix
+
+    def get_size(self):
+        return self._width, self._height
+
+    # создание картинки
+    def load_image(self):
+        self.surf = pygame.Surface((self._height, self._width), flags=pygame.SRCALPHA)
+
+        internal = pygame.image.load(PICS[self._image]).convert_alpha()
+
         self.surf.blit(internal, (0, 0))
         self.rect = self.surf.get_rect()
 
-    def getCoords(self):
-        return self._y, self._x
-
-    def getSize(self):
-        return self._height, self._width
-
-    # а нужно ли??
-    def loadImage(self):
-        pass
-
     def draw(self, surface, pos=None):
+        self.load_image()
         if not pos:
-            pos = (self._y, self._x)
+            pos = (self._x_pix, self._y_pix)
 
         surface.blit(self.surf, pos)
 
 
 class PyGCell(Object):
+    # в этот момент свапаем координаты
+    def __init__(self, cell, y_, x_, id__):
+        super().__init__(id__, self.create_coord(x_, y_)[0], self.create_coord(x_, y_)[1], CELL_SIZE, CELL_SIZE, 1)
 
-    def __init__(self, cell, id__, x_, y_):
-        self.id_ = id__
-        super().__init__(y_, x_, CELL_SIZE, CELL_SIZE, 1)
+    def create_coord(self, x, y):
+        return CELL_SIZE * x, CELL_SIZE * y
 
 
-class PyGUnit(pygame.sprite.Sprite):
+class PyGUnit(Object, Units.Unit):
+    def __init__(self, unit, id__):
+        # на этом моменте свапаем координаты
+        # инициализация Object
+        Object.__init__(self, id__, self.create_coord(unit.get_cords()[1], unit.get_cords()[0])[0],
+                        self.create_coord(unit.get_cords()[1], unit.get_cords()[0])[1], UNIT_SIZE, UNIT_SIZE, unit.type)
 
-    def __init__(self, unit, x_, y_, level, id__):
-        self.id_ = id__
-        self.level = level
-        self.x = x_
-        self.y = y_
-        super().__init__()
-        self.surf = pygame.Surface((UNIT_SIZE, UNIT_SIZE), flags=pygame.SRCALPHA)
-        self.surf.fill(0)
+        # инициализация Unit
+        Units.Unit.__init__(self, unit.get_player(), unit.get_level(), unit.get_type(),
+                            unit.get_cords()[0], unit.get_cords()[1])
 
-        if self.level == 0:
+    def load_image(self):
+        # в object это не реализовать, так как нужна информация о левеле и имени игрока
+        self.surf = pygame.Surface((self._height, self._width), flags=pygame.SRCALPHA)
+
+        if self.get_level() == 0:
             internal = pygame.Surface((UNIT_SIZE, UNIT_SIZE), flags=pygame.SRCALPHA)
             internal.fill(0)
         else:
-            internal = pygame.image.load(PICS[unit.type]).convert_alpha()
+            internal = pygame.image.load(PICS[self._image]).convert_alpha()
 
-        self.surf.blit(internal, (UNIT_SIZE * 0, UNIT_SIZE * 0))
+        self.surf.blit(internal, (0, 0))
+        self.rect = self.surf.get_rect()
 
-        if unit.player != "died":
+        if self.get_level() != 0:
             f1 = pygame.font.SysFont('comicsans', 28)
-            text_level = f1.render('lvl:{}'.format(unit.get_level()), 1, (50, 50, 50))
+            text_level = f1.render('lvl:{}'.format(self.get_level()), 1, (50, 50, 50))
+            text_name = f1.render('{}'.format(self.player), 1, (50, 50, 50))
             self.surf.blit(text_level, (UNIT_SIZE * 0.1 - 5, UNIT_SIZE * 0.8 - 7))
+            self.surf.blit(text_name, (UNIT_SIZE * 0.6 - 5, UNIT_SIZE * 0.8 - 7))
+
+    def create_coord(self, x, y):
+        return CELL_SIZE * x + (CELL_SIZE - UNIT_SIZE) / 2, CELL_SIZE * y + (CELL_SIZE - UNIT_SIZE) / 2
 
 
 class Group(pygame.sprite.Group):
 
-    def __init__(self, new_objects=()):
-        # инициализация базового класса
-        super(Object, self).__init__()
-
+    def __init__(self, new_objects=[]):
+        super().__init__()
         self.objects = new_objects
 
-    def addObject(self, new_object):
+    def add_object(self, new_object):
         self.objects.append(new_object)
 
     def update(self, differences):
         dif = self.getDif()
 
-    def getDif(self, old_hash=[]):
+    # на вход приходит массив старых хэшей
+    def get_dif(self, old_hash=[]):
         res = []
         for i in range(len(self.objects)):
             if self.objects[i].__hash__() != old_hash[i]:
                 res.append(i)
         return res
 
+    # отрисовка
+    def render(self, dest):
+        for obj in self.objects:
+            obj.draw(dest)
 
-class PyGCells:
+
+class PyGCells(Group):
     def __init__(self, cells):
         n = 0
         self.cells = list()
-        self.cell_id_on_coord = dict()
 
         for (i, j) in cells.keys():
-            pyg_cell = PyGCell(cells[(i, j)], n, j, i)
+            pyg_cell = PyGCell(cells[(i, j)], i, j, n)
             self.cells.append(pyg_cell)
-            # меняем координаты местами. Так удобнее будет в pygame.
-            self.cell_id_on_coord[(j, i)] = n
             n += 1
-
-    def create_coord(self, x, y):
-        return CELL_SIZE * x, CELL_SIZE * y
-
-    def render(self, dest):
-        for pyg_cell in self.cells:
-            dest.blit(pyg_cell.surf, self.create_coord(pyg_cell.x, pyg_cell.y))
+        # инициализация родительской Group
+        Group.__init__(self, self.cells)
 
 
-class PyGUnits:
-
+class PyGUnits(Group):
     def __init__(self, units):
         n = 0
 
         self.units = list()
-        self.units_id_on_coord = dict()
 
         # перевод словаря из юнитов из game_data в двмумерный список
         for (i, j) in units.keys():
             unit = units[(i, j)]
-            pyg_unit = PyGUnit(unit, j, i, unit.level, n)
+            pyg_unit = PyGUnit(unit, n)
 
             self.units.append(pyg_unit)
-            self.units_id_on_coord[(j, i)] = pyg_unit
             n += 1
+        Group.__init__(self, self.units)
 
-    def create_coord(self, x, y):
-        return CELL_SIZE * x + (CELL_SIZE - UNIT_SIZE) / 2, CELL_SIZE * y + (CELL_SIZE - UNIT_SIZE) / 2
+        if unit.player != "died":
+            f1 = pygame.font.SysFont('comicsans', 28)
+            text_level = f1.render('lvl:{}'.format(unit.get_level()), 1, (50, 50, 50))
+            self.surf.blit(text_level, (UNIT_SIZE * 0.1 - 5, UNIT_SIZE * 0.8 - 7))
 
-    def render(self, dest):
-        for pyg_unit in self.units:
-            dest.blit(pyg_unit.surf, self.create_coord(pyg_unit.x, pyg_unit.y))
-
-
+# кнопки
 av_but_com = {0: "attack", 1: "move", 2: "create", 3: "upgrade"}
 
 
-class PyGButtons(pygame.sprite.Sprite):
+class PyGButtons(Group):
     def __init__(self):
         self.buttons = list()
         button = pygame.image.load(PICS["button"]).convert_alpha()
@@ -186,41 +194,36 @@ class PyGButtons(pygame.sprite.Sprite):
             self.buttons.append(
                 Button(0, i * CELL_SIZE, CELL_SIZE, CELL_SIZE, button, buttonH, buttonS, av_but_com[i]))
 
-    def render(self, dest):
-        for i in range(self.buttons.__len__()):
-            self.buttons[i].draw(dest, i)
+        Group.__init__(self, self.buttons)
 
 
-class Button:
+class Button(Object):
     def __init__(self, x, y, width, height, image, hovered_image, selected_image, text=''):
-        self.x = x
-        self.y = y
-        self.width = width
-        self.height = height
+        Object.__init__(self, 0, x, y, width, height, image)
         self.text = text
-        self.image = image
+
         self.hovered_image = hovered_image
         self.selected_image = selected_image
         self.selected = False
         self.hovered = False
 
-    def draw(self, surface, i):
+    def draw(self, surface):
 
         if self.selected:
-            surface.blit(self.selected_image, (0, CELL_SIZE * i))
+            surface.blit(self.selected_image, (0, self._y_pix))
 
         elif self.hovered:
-            surface.blit(self.hovered_image, (0, CELL_SIZE * i))
+            surface.blit(self.hovered_image, (0, self._y_pix))
 
         else:
-            surface.blit(self.image, (0, CELL_SIZE * i))
+            surface.blit(self._image, (0, self._y_pix))
 
         if self.text != '':
             font = pygame.font.SysFont('comicsans', 35)
             text = font.render(self.text, 1, (77, 77, 77))
             surface.blit(text, (
-                self.x + (self.width / 2 - text.get_width() / 2 + 2),
-                self.y + (self.height / 2 - text.get_height() / 2) - 5))
+                self._x_pix + (self._width / 2 - text.get_width() / 2 + 2),
+                self._y_pix + (self._height / 2 - text.get_height() / 2) - 5))
 
 
 class PyGameDisplay(Display):
@@ -318,7 +321,7 @@ class PyGameDisplay(Display):
 
         if self.redraw_buttons:
             self.redraw_buttons = False
-            self.draw("buttons")  # , "toolbar")
+            self.draw("buttons")
 
         if selected_button is not None:
             self.redraw_buttons = True

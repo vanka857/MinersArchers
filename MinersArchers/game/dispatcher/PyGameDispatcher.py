@@ -70,19 +70,6 @@ class PyGameDispatcher(Dispatcher):
                     # устанавливаем команду
                     self.command.set_command(command)
 
-                # if event.key == K_SPACE and self.command.status == "maked":
-                #     #log.mprint("key command sent")
-                #
-                #     # отправить команду (к результату работы всей функции check_new_commands())
-                #     # это жопный код, не разбирайся
-                #     has_new_commands = True
-                #     all_coords = list(all_elements(self.command.coords))
-                #     result.append((self.command.command, *all_coords))
-                #
-                #     # когда отправили команду, её можно сбросить
-                #     self.command.clear()
-                #     self.queue.append(("deselectAll",))
-
                 if event.key == K_ESCAPE:
                     log.mprint("key command delete")
                     # удалить команду
