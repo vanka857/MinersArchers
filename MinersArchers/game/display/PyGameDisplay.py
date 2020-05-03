@@ -3,8 +3,8 @@
 import pygame
 
 from game.display.Display import Display
-from game.game_data import PyGame
 from game.game_data.units import Units
+from game.game_data import PyGame
 from game.logs.Logs import Logs
 
 # устанавливаем цвет логов
@@ -175,10 +175,6 @@ class PyGUnits(Group):
             n += 1
         Group.__init__(self, self.units)
 
-        if unit.player != "died":
-            f1 = pygame.font.SysFont('comicsans', 28)
-            text_level = f1.render('lvl:{}'.format(unit.get_level()), 1, (50, 50, 50))
-            self.surf.blit(text_level, (UNIT_SIZE * 0.1 - 5, UNIT_SIZE * 0.8 - 7))
 
 # кнопки
 av_but_com = {0: "attack", 1: "move", 2: "create", 3: "upgrade"}
