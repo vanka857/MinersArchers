@@ -1,10 +1,9 @@
 import pygame
 
-from game.game_data.cells.PygCell import CELL_SIZE
+from game.game_data.cells.Cell_pygame import CELL_SIZE
 from game.game_data.units.Unit import Unit
-from game.pygame_ import PyGame
+from game.pygame_ import PICS_pygame, UNIT_SIZE
 from game.pygame_.Object import Object
-from game.pygame_.PyGame import PICS
 
 
 class PyGUnit(Object, Unit):
@@ -13,7 +12,7 @@ class PyGUnit(Object, Unit):
         # инициализация Object
         Object.__init__(self, id__, *self.create_coordinates(*reversed(unit.get_cords())), UNIT_SIZE, UNIT_SIZE)
 
-        image = pygame.image.load(PICS[unit.type]).convert_alpha()
+        image = pygame.image.load(PICS_pygame[unit.type]).convert_alpha()
         self.load_image(image, pygame.SRCALPHA)
 
         # инициализация Unit
@@ -37,6 +36,3 @@ class PyGUnit(Object, Unit):
 
     def create_coordinates(self, x: int, y: int) -> (int, int):
         return CELL_SIZE * x + (CELL_SIZE - UNIT_SIZE) / 2, CELL_SIZE * y + (CELL_SIZE - UNIT_SIZE) / 2
-
-
-UNIT_SIZE = PyGame.UNIT_SIZE

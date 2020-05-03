@@ -1,5 +1,5 @@
-from game.game_data.cells.PygCell import PyGCell
-from game.game_data.units.PygUnit import PyGUnit
+from game.game_data.cells.Cell_pygame import PyGCell
+from game.game_data.units.Unit_pygame import PyGUnit
 from game.pygame_.Group import Group
 
 

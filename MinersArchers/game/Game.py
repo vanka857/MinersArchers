@@ -3,10 +3,10 @@
 import time
 from collections import deque
 
-from game.dispatcher.ConsoleDispatcher import ConsoleDispatcher
-from game.dispatcher.PyGameDispatcher import PyGameDispatcher
-from game.display.ConsoleDisplay import ConsoleDisplay
-from game.display.PyGameDisplay import PyGameDisplay
+from game.dispatcher.Dispatcher_console import ConsoleDispatcher
+from game.dispatcher.Dispatcher_pygame import PyGameDispatcher
+from game.display.Display_console import ConsoleDisplay
+from game.display.Display_pygame import PyGameDisplay
 from game.game_control.Controller import Controller
 from game.game_data.Data import Data
 from game.logs.Logs import Logs

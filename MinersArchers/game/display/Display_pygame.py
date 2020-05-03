@@ -3,13 +3,13 @@
 import pygame
 
 from game.display.Display import Display
-from game.game_data.cells.PygCell import CELL_SIZE
-from game.game_data.field.PygField import PyGCells, PyGUnits
-from game.game_data.units.PygUnit import UNIT_SIZE
+from game.game_data.cells.Cell_pygame import CELL_SIZE
+from game.game_data.field.Field_pygame import PyGCells, PyGUnits
+from game.game_data.units.Unit_pygame import UNIT_SIZE
 from game.logs.Logs import Logs
+from game.pygame_ import PICS_pygame
 from game.pygame_.Group import Group
 from game.pygame_.Object import Object
-from game.pygame_.PyGame import PICS
 
 # устанавливаем цвет логов
 log = Logs("Yellow")
@@ -25,9 +25,9 @@ av_but_com = {0: "attack", 1: "move", 2: "create", 3: "upgrade"}
 class PyGButtons(Group):
     def __init__(self):
         self.buttons = list()
-        button = pygame.image.load(PICS["button"]).convert_alpha()
-        button_h = pygame.image.load(PICS["buttonHovered"]).convert_alpha()
-        button_s = pygame.image.load(PICS["buttonSelected"]).convert_alpha()
+        button = pygame.image.load(PICS_pygame["button"]).convert_alpha()
+        button_h = pygame.image.load(PICS_pygame["buttonHovered"]).convert_alpha()
+        button_s = pygame.image.load(PICS_pygame["buttonSelected"]).convert_alpha()
 
         for i in range(len(av_but_com)):
             self.buttons.append(
@@ -177,7 +177,7 @@ class PyGameDisplay(Display):
         if bordered_type is not None:
             self.draw("frame")
             name = {"cell": "cell_frame", "unit": "unit_frame"}[bordered_type]
-            frame = pygame.image.load(PICS[name]).convert_alpha()
+            frame = pygame.image.load(PICS_pygame[name]).convert_alpha()
             self.__frame_layer.blit(frame, positions_to_blit(bordered_x, bordered_y)[bordered_type])
 
         self.screen.blit(self.__field_layer, (0, 0))
@@ -248,9 +248,9 @@ class PyGameDisplay(Display):
         if self.__toolbar_layer is None:
             self.__toolbar_layer = pygame.Surface((self.w, TOOLBAR_HEIGHT))
 
-        score_pic = pygame.image.load(PICS["coins"]).convert_alpha()
-        emblem1 = pygame.image.load(PICS["emblem0"]).convert_alpha()
-        emblem2 = pygame.image.load(PICS["emblem1"]).convert_alpha()
+        score_pic = pygame.image.load(PICS_pygame["coins"]).convert_alpha()
+        emblem1 = pygame.image.load(PICS_pygame["emblem0"]).convert_alpha()
+        emblem2 = pygame.image.load(PICS_pygame["emblem1"]).convert_alpha()
         # для подстветки чувака который сейчас ходит
         color1 = RED
         color2 = COLOR
