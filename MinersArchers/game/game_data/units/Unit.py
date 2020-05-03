@@ -12,7 +12,7 @@ class Unit(ABC):
 
     def action(self, **kwargs):
         pass
-        #raise NotImplementedError()
+        # raise NotImplementedError()
 
     def set_level(self, lvl):
         self.level = lvl

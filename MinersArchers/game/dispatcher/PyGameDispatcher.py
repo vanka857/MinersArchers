@@ -8,11 +8,9 @@ from pygame.locals import (
     K_b,
     K_m,
     K_u,
-    K_SPACE,
     K_ESCAPE
 )
 
-from game.game_data import PyGame
 from game.logs.Logs import Logs
 from .Command import Command
 from .Dispatcher import Dispatcher

@@ -3,191 +3,20 @@
 import pygame
 
 from game.display.Display import Display
-from game.game_data import PyGame
-from game.game_data.cells.Cell import Cell
-from game.game_data.units.Units import Unit
+from game.game_data.cells.PygCell import CELL_SIZE
+from game.game_data.field.PygField import PyGCells, PyGUnits
+from game.game_data.units.PygUnit import UNIT_SIZE
 from game.logs.Logs import Logs
+from game.pygame_.Group import Group
+from game.pygame_.Object import Object
+from game.pygame_.PyGame import PICS
 
 # устанавливаем цвет логов
 log = Logs("Yellow")
 
-# размер одной ячейки(квадратной) в пикселях
-CELL_SIZE = PyGame.CELL_SIZE
-UNIT_SIZE = PyGame.UNIT_SIZE
-
 TOOLBAR_HEIGHT = 70
 COLOR = (100, 100, 100)
 RED = (200, 0, 0)
-# словарь с картинками
-PICS = {"mines": "pics/Mine.png",
-        "barrack": "pics/Barrack.png",
-        "cell1": "pics/Valley.png",
-        "cell2": "pics/Mountain.png",
-        "archers": "pics/Archer.png",
-        "warriors": "pics/Warrior.png",
-        "miners": "pics/Miner.png",
-        "unit_frame": "pics/Frame_unit.png",
-        "cell_frame": "pics/Frame_cell.png",
-        "action": "pics/Frame_cell.png",
-        "button": "pics/button.png",
-        "buttonHovered": "pics/buttonHovered.png",
-        "buttonSelected": "pics/buttonSelected.png",
-        "emblem0": "pics/Emblem0.png",
-        "emblem1": "pics/Emblem1.png",
-        "coins": "pics/Coins.png"}
-
-
-# новый родительский класс для Button PyGUnit и PyGCell
-class Object(pygame.sprite.Sprite):
-    def __init__(self, id_: int, x: int, y: int, width: int, height: int):
-        # инициализация базового класса
-        pygame.sprite.Sprite.__init__(self)
-        # load image...
-        self._id = id_
-        # эти в пикселях
-        self._y_pix = y
-        self._x_pix = x
-
-        self._height = height
-        self._width = width
-        self._image = None
-
-        self.surf = None
-        self.rect = None
-
-    def get_coordinates(self):
-        return self._x_pix, self._y_pix
-
-    def get_size(self):
-        return self._width, self._height
-
-    # создание картинки
-    def load_image(self, image: pygame.Surface, flags=0):
-        self.surf = pygame.Surface((self._height, self._width), flags=flags)
-
-        self.surf.blit(image, (0, 0))
-        self.rect = self.surf.get_rect()
-
-    def draw(self, surface, pos=None):
-        # self.load_image()
-        if not pos:
-            pos = (self._x_pix, self._y_pix)
-
-        surface.blit(self.surf, pos)
-
-    def update(self, *args):
-        """Hooked calling pygame.sprite.Group.update() call"""
-        pass
-
-    def draw_on_me(self, surface: pygame.Surface, pos=None):
-        if not pos:
-            pos = (0, 0)
-
-        self.surf.blit(surface, pos)
-        self.rect = self.surf.get_rect()
-
-
-class PyGCell(Object, Cell):
-    # TODO не передавать лишнее
-    def __init__(self, id__, cell: Cell, x_: int, y_: int):
-        Object.__init__(self, id__, *self.create_coordinates(x_, y_), CELL_SIZE, CELL_SIZE)
-
-        image = pygame.image.load(PICS["cell2"])
-        self.load_image(image)
-
-        Cell.__init__(self, x=x_, y=y_, relief=cell._relief)
-
-    def create_coordinates(self, x: int, y: int) -> (int, int):
-        return CELL_SIZE * x, CELL_SIZE * y
-
-
-class PyGUnit(Object, Unit):
-    def __init__(self, id__, unit: Unit):
-        # на этом моменте свапаем координаты
-        # инициализация Object
-        Object.__init__(self, id__, *self.create_coordinates(*reversed(unit.get_cords())), UNIT_SIZE, UNIT_SIZE)
-
-        image = pygame.image.load(PICS[unit.type]).convert_alpha()
-        self.load_image(image, pygame.SRCALPHA)
-
-        # инициализация Unit
-        Unit.__init__(self, unit.get_player(), unit.get_level(), unit.get_type(), *unit.get_cords())
-
-    def draw(self, surface, pos=None):
-        if self.get_level() != 0:
-            f1 = pygame.font.SysFont('comicsans', 28)
-            text_level = f1.render('lvl:{}'.format(self.get_level()), 1, (50, 50, 50))
-            text_name = f1.render('{}'.format(self.player), 1, (50, 50, 50))
-
-            self.draw_on_me(text_level, (UNIT_SIZE * 0.1 - 5, UNIT_SIZE * 0.8 - 7))
-            self.draw_on_me(text_name, (UNIT_SIZE * 0.6 - 5, UNIT_SIZE * 0.8 - 7))
-        else:
-            # TODO этого по-хорошему не должно быть
-            internal = pygame.Surface((UNIT_SIZE, UNIT_SIZE), flags=pygame.SRCALPHA)
-            internal.fill(0)
-            self.load_image(internal, flags=pygame.SRCALPHA)
-
-        super().draw(surface, pos)
-
-    def create_coordinates(self, x: int, y: int) -> (int, int):
-        return CELL_SIZE * x + (CELL_SIZE - UNIT_SIZE) / 2, CELL_SIZE * y + (CELL_SIZE - UNIT_SIZE) / 2
-
-
-class Group(pygame.sprite.Group):
-
-    def __init__(self, new_objects=()):
-        super().__init__()
-        self.objects = new_objects
-
-    def add_object(self, new_object):
-        self.objects.append(new_object)
-
-    def update(self, differences):
-        dif = self.get_dif()
-
-    # на вход приходит массив старых хэшей
-    def get_dif(self, old_hash=()):
-        res = []
-        for i in range(len(self.objects)):
-            if self.objects[i].__hash__() != old_hash[i]:
-                res.append(i)
-        return res
-
-    # отрисовка
-    def render(self, dest):
-        for obj in self.objects:
-            obj.draw(dest)
-
-
-class PyGCells(Group):
-    def __init__(self, cells):
-        n = 0
-        self.cells = list()
-
-        for (i, j) in cells.keys():
-            # TODO своп координат
-            pyg_cell = PyGCell(n, cells[(i, j)], j, i)
-            self.cells.append(pyg_cell)
-            n += 1
-        # инициализация родительской Group
-        Group.__init__(self, self.cells)
-
-
-class PyGUnits(Group):
-    def __init__(self, units):
-        n = 0
-
-        self.units = list()
-
-        # перевод словаря из юнитов из game_data в двмумерный список
-        for (i, j) in units.keys():
-            unit = units[(i, j)]
-            pyg_unit = PyGUnit(n, unit)
-
-            self.units.append(pyg_unit)
-            n += 1
-        Group.__init__(self, self.units)
-
 
 # кнопки
 av_but_com = {0: "attack", 1: "move", 2: "create", 3: "upgrade"}

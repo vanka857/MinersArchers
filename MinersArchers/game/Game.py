@@ -9,8 +9,8 @@ from game.display.ConsoleDisplay import ConsoleDisplay
 from game.display.PyGameDisplay import PyGameDisplay
 from game.game_control.Controller import Controller
 from game.game_data.Data import Data
-from game.game_data.PyGame import PyGame
 from game.logs.Logs import Logs
+from game.pygame_.PyGame import PyGame
 
 # устанавливаем цвет логов
 log = Logs()
@@ -39,7 +39,7 @@ class Game:
             # PyGameDispatcher в PyGameDisplay команд типа "select"
             self.pyg_message_queue = deque()
 
-            # создаем god-object для работы с pygame
+            # создаем god-object для работы с pygame_
             self.__py_game = PyGame()
 
             self.__display = PyGameDisplay(self.__py_game, w, h, self.pyg_message_queue)

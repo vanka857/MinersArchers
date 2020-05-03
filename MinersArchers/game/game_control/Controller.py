@@ -1,7 +1,7 @@
 import math
 
 import game.game_data.cells.Cell as cell
-import game.game_data.units.Units as unit
+import game.game_data.units.Unit as unit
 from game.logs.Logs import Logs
 
 # устанавливаем цвет логов

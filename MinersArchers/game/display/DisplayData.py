@@ -3,5 +3,3 @@ class DisplayData:
 
     def __init__(self, game_data):
         self.__game_data = game_data
-
-

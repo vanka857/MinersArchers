@@ -22,7 +22,7 @@ class Cell:
         return result
 
     def build(self, building_type, inp_level, inp_player):
-        #check
+        # check
         self._building = UCI.create_building(building_type, inp_level, inp_player)
 
 

@@ -1,7 +1,5 @@
-import random
-
 import game.game_data.cells.Cell as cell
-import game.game_data.units.Units as unit
+import game.game_data.units.Unit as unit
 
 
 class Data:
@@ -45,7 +43,7 @@ class Data:
         # нормальная расстановка
         for i in range(h):
             self.units[i, (i + 1) % 2] = unit_creator.create_unit("Ivan", "archers", i, (i + 1) % 2, 3)
-            self.units[i, self.__width -1 - i % 2] = unit_creator.create_unit("Egor", "warriors", i,
+            self.units[i, self.__width - 1 - i % 2] = unit_creator.create_unit("Egor", "warriors", i,
                                                                                self.__width - 1 - i % 2, 3)
         for i in range(h):
             for j in range(w):
