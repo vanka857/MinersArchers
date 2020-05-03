@@ -3,7 +3,8 @@
 import pygame
 
 from game.display.Display import Display
-from game.game_data.units import Units
+from game.game_data.units.Units import Unit
+from game.game_data.cells.Cell import Cell
 from game.game_data import PyGame
 from game.logs.Logs import Logs
 
@@ -20,13 +21,13 @@ RED = (200, 0, 0)
 # словарь с картинками
 PICS = {"mines": "pics/Mine.png",
         "barrack": "pics/Barrack.png",
-        0: "pics/Valley.png",
-        1: "pics/Mountain.png",
+        "cell1": "pics/Valley.png",
+        "cell2": "pics/Mountain.png",
         "archers": "pics/Archer.png",
         "warriors": "pics/Warrior.png",
         "miners": "pics/Miner.png",
-        "unit": "pics/Frame_unit.png",
-        "cell": "pics/Frame_cell.png",
+        "unit_frame": "pics/Frame_unit.png",
+        "cell_frame": "pics/Frame_cell.png",
         "action": "pics/Frame_cell.png",
         "button": "pics/button.png",
         "buttonHovered": "pics/buttonHovered.png",
@@ -38,86 +39,97 @@ PICS = {"mines": "pics/Mine.png",
 
 # новый родительский класс для Button PyGUnit и PyGCell
 class Object(pygame.sprite.Sprite):
-    def __init__(self, id, x, y, width, height, image):
+    def __init__(self, id_: int, x: int, y: int, width: int, height: int):
         # инициализация базового класса
-        super().__init__()
+        pygame.sprite.Sprite.__init__(self)
         # load image...
-        self._id = id
+        self._id = id_
         # эти в пикселях
         self._y_pix = y
         self._x_pix = x
 
         self._height = height
         self._width = width
-        self._image = image
+        self._image = None
 
         self.surf = None
         self.rect = None
 
-    def get_coords(self):
+    def get_coordinates(self):
         return self._x_pix, self._y_pix
 
     def get_size(self):
         return self._width, self._height
 
     # создание картинки
-    def load_image(self):
-        self.surf = pygame.Surface((self._height, self._width), flags=pygame.SRCALPHA)
+    def load_image(self, image: pygame.Surface, flags=0):
+        self.surf = pygame.Surface((self._height, self._width), flags=flags)
 
-        internal = pygame.image.load(PICS[self._image]).convert_alpha()
-
-        self.surf.blit(internal, (0, 0))
+        self.surf.blit(image, (0, 0))
         self.rect = self.surf.get_rect()
 
     def draw(self, surface, pos=None):
-        self.load_image()
+        # self.load_image()
         if not pos:
             pos = (self._x_pix, self._y_pix)
 
         surface.blit(self.surf, pos)
 
+    def update(self, *args):
+        """Hooked calling pygame.sprite.Group.update() call"""
+        pass
 
-class PyGCell(Object):
-    # в этот момент свапаем координаты
-    def __init__(self, cell, y_, x_, id__):
-        super().__init__(id__, self.create_coord(x_, y_)[0], self.create_coord(x_, y_)[1], CELL_SIZE, CELL_SIZE, 1)
+    def draw_on_me(self, surface: pygame.Surface, pos=None):
+        if not pos:
+            pos = (0, 0)
 
-    def create_coord(self, x, y):
+        self.surf.blit(surface, pos)
+        self.rect = self.surf.get_rect()
+
+
+class PyGCell(Object, Cell):
+    # TODO не передавать лишнее
+    def __init__(self, id__, cell: Cell, x_: int, y_: int):
+        Object.__init__(self, id__, *self.create_coordinates(x_, y_), CELL_SIZE, CELL_SIZE)
+
+        image = pygame.image.load(PICS["cell2"])
+        self.load_image(image)
+
+        Cell.__init__(self, x=x_, y=y_, relief=cell._relief)
+
+    def create_coordinates(self, x: int, y: int) -> (int, int):
         return CELL_SIZE * x, CELL_SIZE * y
 
 
-class PyGUnit(Object, Units.Unit):
-    def __init__(self, unit, id__):
+class PyGUnit(Object, Unit):
+    def __init__(self, id__, unit: Unit):
         # на этом моменте свапаем координаты
         # инициализация Object
-        Object.__init__(self, id__, self.create_coord(unit.get_cords()[1], unit.get_cords()[0])[0],
-                        self.create_coord(unit.get_cords()[1], unit.get_cords()[0])[1], UNIT_SIZE, UNIT_SIZE, unit.type)
+        Object.__init__(self, id__, *self.create_coordinates(*reversed(unit.get_cords())), UNIT_SIZE, UNIT_SIZE)
+
+        image = pygame.image.load(PICS[unit.type]).convert_alpha()
+        self.load_image(image, pygame.SRCALPHA)
 
         # инициализация Unit
-        Units.Unit.__init__(self, unit.get_player(), unit.get_level(), unit.get_type(),
-                            unit.get_cords()[0], unit.get_cords()[1])
+        Unit.__init__(self, unit.get_player(), unit.get_level(), unit.get_type(), *unit.get_cords())
 
-    def load_image(self):
-        # в object это не реализовать, так как нужна информация о левеле и имени игрока
-        self.surf = pygame.Surface((self._height, self._width), flags=pygame.SRCALPHA)
-
-        if self.get_level() == 0:
-            internal = pygame.Surface((UNIT_SIZE, UNIT_SIZE), flags=pygame.SRCALPHA)
-            internal.fill(0)
-        else:
-            internal = pygame.image.load(PICS[self._image]).convert_alpha()
-
-        self.surf.blit(internal, (0, 0))
-        self.rect = self.surf.get_rect()
-
+    def draw(self, surface, pos=None):
         if self.get_level() != 0:
             f1 = pygame.font.SysFont('comicsans', 28)
             text_level = f1.render('lvl:{}'.format(self.get_level()), 1, (50, 50, 50))
             text_name = f1.render('{}'.format(self.player), 1, (50, 50, 50))
-            self.surf.blit(text_level, (UNIT_SIZE * 0.1 - 5, UNIT_SIZE * 0.8 - 7))
-            self.surf.blit(text_name, (UNIT_SIZE * 0.6 - 5, UNIT_SIZE * 0.8 - 7))
 
-    def create_coord(self, x, y):
+            self.draw_on_me(text_level, (UNIT_SIZE * 0.1 - 5, UNIT_SIZE * 0.8 - 7))
+            self.draw_on_me(text_name, (UNIT_SIZE * 0.6 - 5, UNIT_SIZE * 0.8 - 7))
+        else:
+            # TODO этого по-хорошему не должно быть
+            internal = pygame.Surface((UNIT_SIZE, UNIT_SIZE), flags=pygame.SRCALPHA)
+            internal.fill(0)
+            self.load_image(internal, flags=pygame.SRCALPHA)
+
+        super().draw(surface, pos)
+
+    def create_coordinates(self, x: int, y: int) -> (int, int):
         return CELL_SIZE * x + (CELL_SIZE - UNIT_SIZE) / 2, CELL_SIZE * y + (CELL_SIZE - UNIT_SIZE) / 2
 
 
@@ -131,7 +143,7 @@ class Group(pygame.sprite.Group):
         self.objects.append(new_object)
 
     def update(self, differences):
-        dif = self.getDif()
+        dif = self.get_dif()
 
     # на вход приходит массив старых хэшей
     def get_dif(self, old_hash=[]):
@@ -153,7 +165,8 @@ class PyGCells(Group):
         self.cells = list()
 
         for (i, j) in cells.keys():
-            pyg_cell = PyGCell(cells[(i, j)], i, j, n)
+            # TODO своп координат
+            pyg_cell = PyGCell(n, cells[(i, j)], j, i)
             self.cells.append(pyg_cell)
             n += 1
         # инициализация родительской Group
@@ -169,7 +182,7 @@ class PyGUnits(Group):
         # перевод словаря из юнитов из game_data в двмумерный список
         for (i, j) in units.keys():
             unit = units[(i, j)]
-            pyg_unit = PyGUnit(unit, n)
+            pyg_unit = PyGUnit(n, unit)
 
             self.units.append(pyg_unit)
             n += 1
@@ -196,31 +209,33 @@ class PyGButtons(Group):
 
 class Button(Object):
     def __init__(self, x, y, width, height, image, hovered_image, selected_image, text=''):
-        Object.__init__(self, 0, x, y, width, height, image)
+        Object.__init__(self, 0, x, y, width, height)
+        self.load_image(image, pygame.SRCALPHA)
+
         self.text = text
 
+        self.image = image
         self.hovered_image = hovered_image
         self.selected_image = selected_image
         self.selected = False
         self.hovered = False
 
-    def draw(self, surface):
+    def draw(self, surface: pygame.Surface, pos=None):
 
         if self.selected:
-            surface.blit(self.selected_image, (0, self._y_pix))
-
+            self.load_image(self.selected_image, pygame.SRCALPHA)
         elif self.hovered:
-            surface.blit(self.hovered_image, (0, self._y_pix))
-
+            self.load_image(self.hovered_image, pygame.SRCALPHA)
         else:
-            surface.blit(self._image, (0, self._y_pix))
+            self.load_image(self.image, pygame.SRCALPHA)
 
         if self.text != '':
             font = pygame.font.SysFont('comicsans', 35)
             text = font.render(self.text, 1, (77, 77, 77))
-            surface.blit(text, (
-                self._x_pix + (self._width / 2 - text.get_width() / 2 + 2),
-                self._y_pix + (self._height / 2 - text.get_height() / 2) - 5))
+            self.draw_on_me(text, ((self._width / 2 - text.get_width() / 2 + 2),
+                                   (self._height / 2 - text.get_height() / 2) - 5))
+
+        super().draw(surface, (0, self._y_pix))
 
 
 class PyGameDisplay(Display):
@@ -230,11 +245,13 @@ class PyGameDisplay(Display):
         self.data = None
         self.queue = queue
         self.py_game = py_game_
-        # столбец для кнопок
+
         self.field_w = w * CELL_SIZE
         self.field_h = h * CELL_SIZE
         self.xCells = w
         self.yCells = h
+
+        # столбец для кнопок
         self.w = (w + 1) * CELL_SIZE
         self.h = h * CELL_SIZE + TOOLBAR_HEIGHT
         self.py_game.init_screen(self.w, self.h)
@@ -329,8 +346,9 @@ class PyGameDisplay(Display):
             self.pyg_buttons.buttons[hovered_button].hovered = False
 
         if bordered_type is not None:
-            self.draw("frame")  # , "toolbar")
-            frame = pygame.image.load(PICS[bordered_type]).convert_alpha()
+            self.draw("frame")
+            name = {"cell": "cell_frame", "unit": "unit_frame"}[bordered_type]
+            frame = pygame.image.load(PICS[name]).convert_alpha()
             self.__frame_layer.blit(frame, positions_to_blit(bordered_x, bordered_y)[bordered_type])
 
         self.screen.blit(self.__field_layer, (0, 0))
