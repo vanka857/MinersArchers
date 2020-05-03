@@ -3,9 +3,9 @@
 import pygame
 
 from game.display.Display import Display
-from game.game_data.units.Units import Unit
-from game.game_data.cells.Cell import Cell
 from game.game_data import PyGame
+from game.game_data.cells.Cell import Cell
+from game.game_data.units.Units import Unit
 from game.logs.Logs import Logs
 
 # устанавливаем цвет логов
@@ -135,7 +135,7 @@ class PyGUnit(Object, Unit):
 
 class Group(pygame.sprite.Group):
 
-    def __init__(self, new_objects=[]):
+    def __init__(self, new_objects=()):
         super().__init__()
         self.objects = new_objects
 
@@ -146,7 +146,7 @@ class Group(pygame.sprite.Group):
         dif = self.get_dif()
 
     # на вход приходит массив старых хэшей
-    def get_dif(self, old_hash=[]):
+    def get_dif(self, old_hash=()):
         res = []
         for i in range(len(self.objects)):
             if self.objects[i].__hash__() != old_hash[i]:
@@ -197,12 +197,12 @@ class PyGButtons(Group):
     def __init__(self):
         self.buttons = list()
         button = pygame.image.load(PICS["button"]).convert_alpha()
-        buttonH = pygame.image.load(PICS["buttonHovered"]).convert_alpha()
-        buttonS = pygame.image.load(PICS["buttonSelected"]).convert_alpha()
+        button_h = pygame.image.load(PICS["buttonHovered"]).convert_alpha()
+        button_s = pygame.image.load(PICS["buttonSelected"]).convert_alpha()
 
         for i in range(len(av_but_com)):
             self.buttons.append(
-                Button(0, i * CELL_SIZE, CELL_SIZE, CELL_SIZE, button, buttonH, buttonS, av_but_com[i]))
+                Button(0, i * CELL_SIZE, CELL_SIZE, CELL_SIZE, button, button_h, button_s, av_but_com[i]))
 
         Group.__init__(self, self.buttons)
 
@@ -415,14 +415,13 @@ class PyGameDisplay(Display):
         self.pyg_cells.render(self.__field_layer)
 
     # отрисовка toolbar
-
     def create_toolbar_layer(self):
         if self.__toolbar_layer is None:
             self.__toolbar_layer = pygame.Surface((self.w, TOOLBAR_HEIGHT))
 
         score_pic = pygame.image.load(PICS["coins"]).convert_alpha()
-        embl1 = pygame.image.load(PICS["emblem0"]).convert_alpha()
-        embl2 = pygame.image.load(PICS["emblem1"]).convert_alpha()
+        emblem1 = pygame.image.load(PICS["emblem0"]).convert_alpha()
+        emblem2 = pygame.image.load(PICS["emblem1"]).convert_alpha()
         # для подстветки чувака который сейчас ходит
         color1 = RED
         color2 = COLOR
@@ -442,8 +441,8 @@ class PyGameDisplay(Display):
 
         self.__toolbar_layer.blit(name1, (8, 13))
         self.__toolbar_layer.blit(score_pic, (CELL_SIZE, 0))
-        self.__toolbar_layer.blit(embl1, (CELL_SIZE * 2 + 12, 8))
+        self.__toolbar_layer.blit(emblem1, (CELL_SIZE * 2 + 12, 8))
 
         self.__toolbar_layer.blit(name2, (CELL_SIZE * 3 + 10, 13))
         self.__toolbar_layer.blit(score_pic, (CELL_SIZE * 4, 0))
-        self.__toolbar_layer.blit(embl2, (CELL_SIZE * 5 + 5, 6))
+        self.__toolbar_layer.blit(emblem2, (CELL_SIZE * 5 + 5, 6))

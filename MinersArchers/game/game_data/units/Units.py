@@ -11,7 +11,8 @@ class Unit(ABC):
         self._x = x
 
     def action(self, **kwargs):
-        raise NotImplementedError()
+        pass
+        #raise NotImplementedError()
 
     def set_level(self, lvl):
         self.level = lvl
@@ -34,11 +35,13 @@ class Unit(ABC):
 
     # drawing
     def render(self):
-        raise NotImplementedError()
+        pass
+        # raise NotImplementedError()
 
     # declaration for player
     def say(self):
-        raise NotImplementedError()
+        pass
+        # raise NotImplementedError()
 
 
 # concrete units
