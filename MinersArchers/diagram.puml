@@ -22,27 +22,27 @@ package Object{
         + hover(hovered=true)
     }
 
-    Object <|-- PyGUnit
+    Object <|---down PyGUnit
     class PyGUnit{
         + PygUnit(Unit)
         + draw(surface, pos)
         + create_coordinates(x, y)
     }
 
-    Object <|-- PyGCell
+    Object <|--- PyGCell
     class PyGCell {
         + PygCell(Cell)
         + draw(surface, pos)
         + create_coordinates(x, y)
     }
 
-    Object <|-- Button
+    Object <|--- Button
     class Button {
         + draw(surface, pos)
     }
 }
 
-Unit <|----- PyGUnit
+Unit <|------ PyGUnit
 package Unit {
     abstract class Unit{
         # x
@@ -80,12 +80,12 @@ package Unit {
 
     abstract class Creator{}
 
-    Unit <- UnitCreator
-    UnitCreator <- Creator
+    Unit . UnitCreator
+    UnitCreator -|> Creator
 }
 
 package Cell{
-    Cell <|----- PyGCell
+    Cell <|---- PyGCell
     class Cell {
         # position
         # player
@@ -94,7 +94,7 @@ package Cell{
 }
 
 class SpriteGroup{}
-SpriteGroup <|---- Group
+SpriteGroup <|-- Group
 
 package Group{
     abstract class Group{
@@ -106,19 +106,18 @@ package Group{
     }
 
     package Field_pygame {
-    class PyGUnits {}
-    Group <|-- PyGUnits
-    PyGUnit ---o PyGUnits : 1..n
+        class PyGCells {}
+        PyGCell ---[hidden]--o PyGCells : 1..n
+        Group <|--- PyGCells
 
-
-    class PyGCells {}
-    PyGCell -o PyGCells : 1..n
-    Group <|-- PyGCells
+        class PyGUnits {}
+        Group <|--- PyGUnits
+        PyGUnit ---[hidden]--o PyGUnits : 1..n
     }
 
     class PyGButtons {}
-    Button ---o PyGButtons : 1..n
-    Group <|-- PyGButtons
+    Button ---[hidden]--o PyGButtons : 1..n
+    Group <|--- PyGButtons
 
 }
 
@@ -145,9 +144,9 @@ class PyGameDisplay {
     - create_toolbar_layer()
 }
 
-PyGUnits ----o PyGameDisplay
-PyGCells ----o PyGameDisplay
-PyGButtons ----o PyGameDisplay
+PyGUnits ---o PyGameDisplay
+PyGCells ---o PyGameDisplay
+PyGButtons ---o PyGameDisplay
 
 
 class Game {
@@ -185,8 +184,8 @@ class Command{
 
 Command --o PyGameDispatcher
 
-PyGameDispatcher -----o Game
-PyGameDisplay -----o Game
+PyGameDispatcher ----o Game
+PyGameDisplay ----o Game
 
 class Data{
     - units
@@ -205,6 +204,9 @@ class Controller{
 }
 Data --o Controller
 
-Controller -----o Game
+Unit o-------- Data
+Cell o--------- Data
+
+Controller ----o Game
 
 @enduml
