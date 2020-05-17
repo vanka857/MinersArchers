@@ -260,11 +260,14 @@ class PyGameDisplay(Display):
 
         font = pygame.font.SysFont('comicsans', 70)
 
-        name1 = font.render('Ivan            :{}              :{}'.format(
-            self.data.score["Ivan"], self.data.num_units["Ivan"]), 1, color1)
+        names = list(self.data.players.keys());
+        name_1 = names[1]; name_2 = names[0]
 
-        name2 = font.render('Egor            :{}             :{}'.format(
-            self.data.score["Egor"], self.data.num_units["Egor"]), 1, color2)
+        name1 = font.render('{}            :{}              :{}'.format(name_1, self.data.players[name_1].get_score(),
+                                                                self.data.players[name_1].get_num_units()), 1, color1)
+
+        name2 = font.render('{}            :{}             :{}'.format(name_2, self.data.players[name_2].get_score(),
+                                                                self.data.players[name_2].get_num_units()), 1, color2)
 
         self.__toolbar_layer.fill((228, 213, 126))
 

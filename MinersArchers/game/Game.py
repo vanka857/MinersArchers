@@ -23,17 +23,13 @@ class Game:
     __display = 0
     __running = True
 
-    # игроки
-    __players = ["Ivan", "Egor"]
-    # баланс игроков
-    __score = {__players[0]: 0, __players[1]: 0}
-    # id игрока
     __current_player = 0
 
     FRAME_TIME = 100
 
     def __init__(self, w=5, h=5, mode="console"):
         self.__mode = mode
+
         if mode == "py_game":
             # создаем очередь сообщения для прямой отправки от
             # PyGameDispatcher в PyGameDisplay команд типа "select"
@@ -59,32 +55,35 @@ class Game:
         # у контроллера есть все данные об игре
         self.__game_control = Controller(self.__game_data)
 
+        # игроки
+        self.names = list(self.__game_data.players.keys())
+        self.__players = [self.names[1], self.names[0]]
+
     def if_end(self):
         # подсчет сколько у кого юнитов
         num1 = 0
         num2 = 0
         for para in self.__game_data.units.items():
-            if para[1].player == "Egor":
+            if para[1].player == self.names[0]:
                 num1 += 1
-            if para[1].player == "Ivan":
+            if para[1].player == self.names[1]:
                 num2 += 1
 
-        self.__game_data.num_units["Egor"] = num1
-        self.__game_data.num_units["Ivan"] = num2
-
+        self.__game_data.players[self.names[0]].set_num_units(num1)
+        self.__game_data.players[self.names[1]].set_num_units(num2)
         # проверка на то, что в обоих игроков есть юниты
         for para in self.__game_data.units.items():
-            if para[1].player == "Egor":
+            if para[1].player == self.names[0]:
                 break
         else:
-            log.mprint("Ivan win!!! End of the game")
+            log.mprint("{} win!!! End of the game".format(self.names[1]))
             self.__running = 0
 
         for para in self.__game_data.units.items():
-            if para[1].player == "Ivan":
+            if para[1].player == self.names[1]:
                 break
         else:
-            log.mprint("Egor win!!! End of the game")
+            log.mprint("{}} win!!! End of the game".format(self.names[1]))
             self.__running = 0
 
     def __do_action(self, command, name):
@@ -96,9 +95,10 @@ class Game:
             # передача управления в контроллер
             return self.__game_control.main_control(command, name)
 
+    # TODO !!!
     def __change_player(self):
         # игроки делают ходы по очереди
-        self.__current_player = (self.__current_player + 1) % len(self.__players)
+        self.__current_player = (self.__current_player + 1) % len(self.__game_data.players)
 
     def __get_player(self, id_):
         return self.__players[id_]
