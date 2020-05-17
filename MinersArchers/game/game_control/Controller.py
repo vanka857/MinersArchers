@@ -1,12 +1,10 @@
 import math
-
 import game.game_data.cells.Cell as cell
 import game.game_data.units.Unit as unit
 from game.logs.Logs import Logs
 
 # устанавливаем цвет логов
 log = Logs("Green")
-TIPS = {"Egor": "warriors", "Ivan": "archers"}
 
 
 class Controller:
@@ -42,7 +40,7 @@ class Controller:
 
     def create(self, command, name):
         # если баланс 0
-        if self.__game_data.score[name] == 0:
+        if self.__game_data.players[name].get_score() == 0:
             log.mprint("You have no coins to create a unit!")
             return 1
 
@@ -55,9 +53,9 @@ class Controller:
             unit_creator = unit.Creator()
             # !!!пока у разных игроков разные типы - следовательно
             self.__game_data.units[(int(command[1]), int(command[2]))] = \
-                unit_creator.create_unit(name, TIPS[name], int(command[1]), int(command[2]), 1)
+                unit_creator.create_unit(name, self.__game_data.TIPS[name], int(command[1]), int(command[2]), 1)
             # и снимаем монету за создание юнита
-            self.__game_data.down_score(name)
+            self.__game_data.players[name].down_score()
             return 0
 
     def attack(self, command, name):
@@ -101,7 +99,7 @@ class Controller:
                 self.__game_data.units[(h1, w1)] = self.__game_data.units[(-1, -1)]
                 # увеличиваем его очки
                 for i in range(level2):
-                    self.__game_data.up_score(name)
+                    self.__game_data.players[name].up_score()
                 # указываем на мертвого
                 return 0
             elif level1 == level2:
@@ -110,7 +108,7 @@ class Controller:
                 self.__game_data.units[(h2, w2)] = self.__game_data.units[(-1, -1)]
                 # увеличиваем его очки
                 for i in range(level2):
-                    self.__game_data.up_score(name)
+                    self.__game_data.players[name].up_score()
                 return 0
             else:
                 unit2.set_level(level2 - level1)
@@ -149,11 +147,11 @@ class Controller:
         h1 = int(command[1])
         w1 = int(command[2])
 
-        if self.__game_data.score[name] == 0:
+        if self.__game_data.players[name].get_score() == 0:
             log.mprint("You have no coins to upgrade the unit!")
             return 1
         # и снимаем монету за создание юнита
-        self.__game_data.down_score(name)
+        self.__game_data.players[name].down_score()
 
         self.__game_data.units[(h1, w1)].set_level(self.__game_data.units[(h1, w1)].level + 1)
 
