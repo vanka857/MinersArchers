@@ -1,13 +1,10 @@
+import json
+
 import game.game_data.cells.Cell as cell
 import game.game_data.units.Unit as unit
-import json
 
 
 class Data:
-    __width = 0
-    __height = 0
-    units = None
-    _cells = None
 
     def __init__(self, w, h):
         self.__width = w
@@ -16,6 +13,10 @@ class Data:
         # будем хранить юнитов в словаре, ключ - пара координат
         self.units = dict()
         self._cells = dict()
+
+        # храним здесь инфу о выделениях (нажатиях) и наведениях
+        self.selected = None
+        self.hovered = None
 
         with open("game/players.json", "r") as read_file:
             json_players = json.load(read_file)
@@ -89,3 +90,6 @@ class Player:
 
     def down_score(self):
         self.__score -= 1
+
+    def get_name(self):
+        return self.__name
