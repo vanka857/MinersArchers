@@ -10,13 +10,19 @@ from game.logs.Logs import Logs
 from game.pygame_ import PICS_pygame
 from game.pygame_.Group import Group
 from game.pygame_.Object import Object
+import json
+
+with open("game/field.json", "r") as read_file:
+    field = json.load(read_file)
+
+TOOLBAR_HEIGHT = field["TOOLBAR_HEIGHT"]
+COLOR = tuple(field["COLOR"])
+RED = tuple(field["RED"])
+CELL_SIZE = field["CELL_SIZE"]
+UNIT_SIZE = field["UNIT_SIZE"]
 
 # устанавливаем цвет логов
 log = Logs("Yellow")
-
-TOOLBAR_HEIGHT = 70
-COLOR = (100, 100, 100)
-RED = (200, 0, 0)
 
 # кнопки
 av_but_com = {0: "attack", 1: "move", 2: "create", 3: "upgrade"}
@@ -66,7 +72,6 @@ class Button(Object):
 
         super().draw(surface, (0, self._y_pix))
 
-
 class PyGameDisplay(Display):
 
     def __init__(self, w, h):
@@ -106,43 +111,68 @@ class PyGameDisplay(Display):
     redraw_buttons = False
 
     def update(self):
+        # определение координат, куда накладывать рамку
+        def positions_to_blit(x_, y_):
+            return {"unit": (CELL_SIZE * x_ + (CELL_SIZE - UNIT_SIZE) / 2,
+                             CELL_SIZE * y_ + (CELL_SIZE - UNIT_SIZE) / 2),
+                    "cell": (x_ * CELL_SIZE, y_ * CELL_SIZE),
+                    "action": (x_ * CELL_SIZE, y_ * CELL_SIZE)}
 
         if not self.field_created:
             self.field_created = True
             self.draw("all")
 
+        if self.data.hovered:
+            # если мышка над кнопкой, нужно как-то выделить кнопку
+            coord = self.data.hovered[0]
+            y = coord[0]
+            button = pygame.image.load(PICS_pygame["buttonHovered"]).convert_alpha()
+            font = pygame.font.SysFont('comicsans', 35)
+            text = font.render(av_but_com[y], 1, (77, 77, 77))
+            button.blit(text, ((CELL_SIZE / 2 - text.get_width() / 2 + 2),
+                               (CELL_SIZE / 2 - text.get_height() / 2) - 5))
+
+            self.__buttons_layer.blit(button, (0, CELL_SIZE * coord[0]))
+        else:
+            self.create_buttons_layer()
+
         if self.data.selected is None:
-            # TODO сбросить все выделения
-            pass
+            self.__frame_layer = pygame.Surface((self.field_w, self.field_h), pygame.SRCALPHA, 32)
+            self.__frame_layer.fill(0)
 
         else:
-            # то делаем новое выделение
             selected = self.data.selected
-
-            # TODO здесь написать выделение НОВЫХ объектов и сброс выделения СТАРЫХ. координаты передаются в формате (x, y)
-            # TODO Выделение нового юнита должно сбрасывать и выделение старого целла, и наоборот (как у нас и было)
-
             coord = selected[0]
 
+            names = {"cell": "cell_frame", "unit": "unit_frame"}
 
-            if selected[1] == "unit":
-                # cравнение с предыдущим выделенным unit'ом
-                # если есть изменения, то выделение нового...
+            name = selected[1]
+            if name in list(names.keys()):
+                pic_name = {"cell": "cell_frame", "unit": "unit_frame"}[name]
+                frame = pygame.image.load(PICS_pygame[pic_name]).convert_alpha()
+                # своп координат происходит здесь
+                # очищаем слой с рамками, накладываем новую рамку
+                self.__frame_layer = pygame.Surface((self.field_w, self.field_h), pygame.SRCALPHA, 32)
+                self.__frame_layer.blit(frame, positions_to_blit(coord[1], coord[0])[name])
+            if name == "action" and self.data.hovered:
+                # если кликнута кнопка
+                # нужно вывести нажатую кнопку
+                coord = self.data.selected[0]
+                y = coord[0]
+                button = pygame.image.load(PICS_pygame["buttonSelected"]).convert_alpha()
+                font = pygame.font.SysFont('comicsans', 35)
+                text = font.render(av_but_com[y], 1, (77, 77, 77))
+                button.blit(text, ((CELL_SIZE / 2 - text.get_width() / 2 + 2),
+                                   (CELL_SIZE / 2 - text.get_height() / 2) - 5))
+
+                self.__buttons_layer.blit(button, (0, CELL_SIZE * coord[0]))
                 pass
-
-            if selected[1] == "cell":
-                # cравнение с предыдущим выделенным cell'ом
-                # если есть изменения, то выделение нового...
-                pass
-
-            log.mprint(" on ", end="")
-            log.mprint(coord)
 
         self.screen.blit(self.__field_layer, (0, 0))
         self.screen.blit(self.__units_layer, (0, 0))
         self.screen.blit(self.__buttons_layer, (CELL_SIZE * self.xCells, 0))
-        self.screen.blit(self.__frame_layer, (0, 0))
         self.screen.blit(self.__toolbar_layer, (0, self.field_h))
+        self.screen.blit(self.__frame_layer, (0, 0))
 
         pygame_.update_display()
 
@@ -188,7 +218,6 @@ class PyGameDisplay(Display):
             self.__buttons_layer = pygame.Surface((CELL_SIZE, self.field_h))
 
         self.__buttons_layer.fill((228, 213, 126))
-
         # их отрисовка
         self.pyg_buttons.render(self.__buttons_layer)
 
@@ -241,11 +270,12 @@ class PyGameDisplay(Display):
                             color2)
 
         self.__toolbar_layer.fill((228, 213, 126))
+        self.__toolbar_layer.fill((228, 213, 126))
 
-        self.__toolbar_layer.blit(name1, (8, 13))
+        self.__toolbar_layer.blit(name2, (8, 13))
         self.__toolbar_layer.blit(score_pic, (CELL_SIZE, 0))
-        self.__toolbar_layer.blit(emblem1, (CELL_SIZE * 2 + 12, 8))
+        self.__toolbar_layer.blit(emblem2, (CELL_SIZE * 2 + 12, 8))
 
-        self.__toolbar_layer.blit(name2, (CELL_SIZE * 3 + 10, 13))
+        self.__toolbar_layer.blit(name1, (CELL_SIZE * 3 + 10, 13))
         self.__toolbar_layer.blit(score_pic, (CELL_SIZE * 4, 0))
-        self.__toolbar_layer.blit(emblem2, (CELL_SIZE * 5 + 5, 6))
+        self.__toolbar_layer.blit(emblem1, (CELL_SIZE * 5 + 5, 6))

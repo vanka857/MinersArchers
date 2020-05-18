@@ -198,6 +198,7 @@ class Controller:
 
         # получаем координаты игрового поля и тип объекта, который был выбран мышью
         selected_object = pygame_.get_object_on_coords(x, y)
+
         if selected_object is None:
             return
 
@@ -220,10 +221,11 @@ class Controller:
     def mouse_move(self, x, y):
         # вызывается из dispatcher при движении мыши
         hovered_object = pygame_.get_object_on_coords(x, y)
-        if hovered_object is None:
-            return
 
-        self.__game_data.hovered = hovered_object
+        if hovered_object and hovered_object[1] == "action":
+            self.__game_data.hovered = hovered_object
+        else:
+            self.__game_data.hovered = None
 
     def set_keys(self, keys: dict):
         # инициализация кнопок

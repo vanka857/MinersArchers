@@ -1,12 +1,15 @@
 import pygame
 
 from game.logs.Logs import Logs
-
+import json
 log = Logs()
 
+with open("game/field.json", "r") as read_file:
+    field = json.load(read_file)
+
 # размер одной ячейки(квадратной) в пикселях
-CELL_SIZE = 202
-UNIT_SIZE = 100
+CELL_SIZE = field["CELL_SIZE"]
+UNIT_SIZE = field["UNIT_SIZE"]
 
 CELL_HEIGHT = CELL_SIZE
 CELL_WIDTH = CELL_SIZE
@@ -65,7 +68,7 @@ def get_object_on_coords(x, y):
     # теперь мы знаем, какой cell, узнаем, попали в unit или нет
 
     global w, h
-    # если нажали правее или ниже игрового поля
+    # если нажали правее или ниже игрового п_objectоля
     if x_field >= int(w / CELL_WIDTH):
         return None
     if y_field >= int(h / CELL_HEIGHT):
