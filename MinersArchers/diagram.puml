@@ -85,7 +85,7 @@ package Unit {
 }
 
 package Cell{
-    Cell <|---- PyGCell
+    Cell <|--- PyGCell
     class Cell {
         # position
         # player
@@ -150,7 +150,7 @@ PyGButtons ---o PyGameDisplay
 
 
 class Game {
-    - contoller
+    - controller
     - game_data
     - event_dispatcher
     - display
@@ -202,7 +202,10 @@ class Controller{
     - upgrade()
     - build()
 }
-Data --o Controller
+
+Data -o Controller
+Controller <-- Dispatcher
+Controller o-- Command
 
 Unit o-------- Data
 Cell o--------- Data

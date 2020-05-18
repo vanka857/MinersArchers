@@ -1,7 +1,6 @@
 # coding=utf-8
 
 import time
-
 from game.dispatcher.Dispatcher_console import ConsoleDispatcher
 from game.dispatcher.Dispatcher_pygame import PyGameDispatcher
 from game.display.Display_console import ConsoleDisplay
