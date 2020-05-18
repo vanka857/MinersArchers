@@ -237,9 +237,18 @@ class Controller:
             return
 
         # если была нажата кнопка ESC
-        if key == self.keys["escape"]:
+        if self.keys[key] == "escape":
             self.command.clear()
             self.__game_data.selected = None
+
+        # если ожидаем команду и получаем ее
+        elif self.keys[key] in ("create", "move", "attack", "upgrade"):
+
+            # устанавливаем команду
+            self.command.set_command(self.keys[key])
+
+
+
 
     def execute_command(self, player: Player):
         # если команда сформирована

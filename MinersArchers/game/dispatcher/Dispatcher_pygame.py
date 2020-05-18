@@ -1,7 +1,12 @@
 import pygame
 # первые буквы команд для взаимодействия с юнитами через клавиартуру
 from pygame.locals import (
-    K_ESCAPE
+    K_ESCAPE,
+    K_a,
+    K_b,
+    K_c,
+    K_m,
+    K_u
 )
 
 from game.game_control.Controller import Controller
@@ -23,10 +28,8 @@ class PyGameDispatcher(Dispatcher):
 
         log.mprint('PyGame Dispatcher created!')
 
-    # available_key_commands = {K_c: "create", K_a: "attack", K_b: "build", K_m: "move", K_u: "upgrade"}
-
     def check_new_commands(self):
-        self.controller.set_keys({"escape": K_ESCAPE})
+        self.controller.set_keys({K_ESCAPE: "escape", K_c: "create", K_a: "attack", K_b: "build", K_m: "move", K_u: "upgrade"})
 
         for event in pygame.event.get():
 
@@ -35,10 +38,8 @@ class PyGameDispatcher(Dispatcher):
 
             # пока что оставим поддержку ввода команд с клавиатуры
             if event.type == pygame.KEYDOWN:
-
-                if event.key == K_ESCAPE:
-                    # оповещаем контроллер
-                    self.controller.key_pressed(K_ESCAPE)
+                # оповещаем контроллер
+                self.controller.key_pressed(event.key)
 
             if event.type == pygame.MOUSEMOTION:
                 # оповещаем контроллер
