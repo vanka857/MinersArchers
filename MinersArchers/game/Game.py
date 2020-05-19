@@ -1,8 +1,6 @@
 # coding=utf-8
 
 import time
-from collections import deque
-
 from game.dispatcher.Dispatcher_console import ConsoleDispatcher
 from game.dispatcher.Dispatcher_pygame import PyGameDispatcher
 from game.display.Display_console import ConsoleDisplay
@@ -10,7 +8,6 @@ from game.display.Display_pygame import PyGameDisplay
 from game.game_control.Controller import Controller
 from game.game_data.Data import Data
 from game.logs.Logs import Logs
-from game.pygame_.PyGame import PyGame
 
 # устанавливаем цвет логов
 log = Logs()
@@ -23,27 +20,24 @@ class Game:
     __display = 0
     __running = True
 
-    # игроки
-    __players = ["Ivan", "Egor"]
-    # баланс игроков
-    __score = {__players[0]: 0, __players[1]: 0}
-    # id игрока
     __current_player = 0
 
     FRAME_TIME = 100
 
     def __init__(self, w=5, h=5, mode="console"):
         self.__mode = mode
+
+        self.__game_data = Data(w, h)
+        # у контроллера есть все данные об игре
+        # у контроллера есть все данные об игре
+        self.__game_control = Controller(self.__game_data)
+        self.__game_control.set_quit_func(self.quit)
+
         if mode == "py_game":
-            # создаем очередь сообщения для прямой отправки от
-            # PyGameDispatcher в PyGameDisplay команд типа "select"
-            self.pyg_message_queue = deque()
+            self.__display = PyGameDisplay(w, h)
 
-            # создаем god-object для работы с pygame_
-            self.__py_game = PyGame()
-
-            self.__display = PyGameDisplay(self.__py_game, w, h, self.pyg_message_queue)
-            self.__event_dispatcher = PyGameDispatcher(self.__py_game, self.pyg_message_queue)
+            # передаем диспетчеру наш контроллер, чтобы он мог вызывать его методы
+            self.__event_dispatcher = PyGameDispatcher(self.__game_control)
 
         elif mode == "console":
             # console output
@@ -54,54 +48,42 @@ class Game:
             log.mprint("Incorrect init!")
             raise Exception
 
-        self.__game_data = Data(w, h)
-        # у контроллера есть все данные об игре
-        # у контроллера есть все данные об игре
-        self.__game_control = Controller(self.__game_data)
+        self.names = list(self.__game_data.players.keys())
 
     def if_end(self):
         # подсчет сколько у кого юнитов
         num1 = 0
         num2 = 0
         for para in self.__game_data.units.items():
-            if para[1].player == "Egor":
+            if para[1].player == self.names[0]:
                 num1 += 1
-            if para[1].player == "Ivan":
+            if para[1].player == self.names[1]:
                 num2 += 1
 
-        self.__game_data.num_units["Egor"] = num1
-        self.__game_data.num_units["Ivan"] = num2
-
+        self.__game_data.players[self.names[0]].set_num_units(num1)
+        self.__game_data.players[self.names[1]].set_num_units(num2)
         # проверка на то, что в обоих игроков есть юниты
         for para in self.__game_data.units.items():
-            if para[1].player == "Egor":
+            if para[1].player == self.names[0]:
                 break
         else:
-            log.mprint("Ivan win!!! End of the game")
+            log.mprint("{} win!!! End of the game".format(self.names[1]))
             self.__running = 0
 
         for para in self.__game_data.units.items():
-            if para[1].player == "Ivan":
+            if para[1].player == self.names[1]:
                 break
         else:
-            log.mprint("Egor win!!! End of the game")
+            log.mprint("{}} win!!! End of the game".format(self.names[1]))
             self.__running = 0
 
-    def __do_action(self, command, name):
-        if command == "quit":
-            # завершение программы
-            self.__running = False
-            return 0
-        else:
-            # передача управления в контроллер
-            return self.__game_control.main_control(command, name)
+    def quit(self):
+        self.__running = False
 
     def __change_player(self):
         # игроки делают ходы по очереди
-        self.__current_player = (self.__current_player + 1) % len(self.__players)
-
-    def __get_player(self, id_):
-        return self.__players[id_]
+        self.__current_player = (self.__current_player + 1) % len(self.__game_data.players)
+        log.mprint("player changed to:" + self.names[self.__current_player])
 
     # начало игры
     def start(self):
@@ -119,20 +101,16 @@ class Game:
         while self.__running:
             self.if_end()
 
-            has_new_commands, commands = self.__event_dispatcher.check_new_commands()
-            # если есть новые команды
-            if has_new_commands:
-                for command in commands:
-                    # если контроллер вернул 0, все хорошо, меняем игрока,
-                    # иначе цикл повторяется с тем же игроком
-                    if self.__do_action(command, self.__get_player(self.__current_player)) == 0:
-                        self.__game_data.cur_step_name = not self.__game_data.cur_step_name
-                        # перерисовка поля
-                        self.__display.draw("units", "toolbar")
+            # проверяем наличие новых событий (мышь, клава)
+            self.__event_dispatcher.check_new_commands()
 
-                        # когда ход игрока закончен, меняем текущего игрока
-                        self.__change_player()
-                        log.mprint("player changed to:" + self.__get_player(self.__current_player))
+            # если команда существовала и выполнена успешно
+            if self.__game_control.execute_command(self.__game_data.players[self.names[self.__current_player]]) == 0:
+                # то меняем игрока
+                self.__game_data.cur_step_name = not self.__game_data.cur_step_name
+                self.__change_player()
+                # перерисовываем юнитов и тулбар (вдруг изменились)
+                self.__display.draw("units", "toolbar")
 
             # для вызова self.__display.update() не чаще, чем каждые self.FRAME_TIME миллисекунд
             current_time = time.time()
@@ -141,3 +119,4 @@ class Game:
                 self.__display.update()
             else:
                 time.sleep(0.1)
+
