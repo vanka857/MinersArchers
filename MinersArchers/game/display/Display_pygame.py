@@ -1,18 +1,19 @@
 # coding=utf-8
 
 import pygame
+import json
 
 from game import pygame_
 from game.display.Display import Display
 from game.game_data.cells.Cell_pygame import CELL_SIZE
 from game.game_data.field.Field_pygame import PyGCells, PyGUnits
 from game.logs.Logs import Logs
-from game.pygame_ import PICS_pygame
+from game.pygame_ import PICS_pygame, font_family
 from game.pygame_.Group import Group
 from game.pygame_.Object import Object
-import json
+from static import resource_path, config_path
 
-with open("game/field.json", "r") as read_file:
+with open(config_path("field.json"), "r") as read_file:
     field = json.load(read_file)
 
 TOOLBAR_HEIGHT = field["TOOLBAR_HEIGHT"]
@@ -65,7 +66,7 @@ class Button(Object):
             self.load_image(self.image, pygame.SRCALPHA)
 
         if self.text != '':
-            font = pygame.font.SysFont('comicsans', 35)
+            font = pygame.font.Font(font_family, 28)
             text = font.render(self.text, 1, (77, 77, 77))
             self.draw_on_me(text, ((self._width / 2 - text.get_width() / 2 + 2),
                                    (self._height / 2 - text.get_height() / 2) - 5))
@@ -127,7 +128,7 @@ class PyGameDisplay(Display):
             coord = self.data.hovered[0]
             y = coord[0]
             button = pygame.image.load(PICS_pygame["buttonHovered"]).convert_alpha()
-            font = pygame.font.SysFont('comicsans', 35)
+            font = pygame.font.Font(font_family, 28)
             text = font.render(av_but_com[y], 1, (77, 77, 77))
             button.blit(text, ((CELL_SIZE / 2 - text.get_width() / 2 + 2),
                                (CELL_SIZE / 2 - text.get_height() / 2) - 5))
@@ -160,7 +161,7 @@ class PyGameDisplay(Display):
                 coord = self.data.selected[0]
                 y = coord[0]
                 button = pygame.image.load(PICS_pygame["buttonSelected"]).convert_alpha()
-                font = pygame.font.SysFont('comicsans', 35)
+                font = pygame.font.Font(font_family, 28)
                 text = font.render(av_but_com[y], 1, (77, 77, 77))
                 button.blit(text, ((CELL_SIZE / 2 - text.get_width() / 2 + 2),
                                    (CELL_SIZE / 2 - text.get_height() / 2) - 5))
@@ -255,7 +256,7 @@ class PyGameDisplay(Display):
             color1 = COLOR
             color2 = RED
 
-        font = pygame.font.SysFont('comicsans', 70)
+        font = pygame.font.Font(font_family, 45)
 
         names = list(self.data.players.keys())
         name_1 = names[0]

@@ -2,7 +2,7 @@ import pygame
 
 from game.game_data.cells.Cell_pygame import CELL_SIZE
 from game.game_data.units.Unit import Unit
-from game.pygame_ import PICS_pygame, UNIT_SIZE
+from game.pygame_ import PICS_pygame, UNIT_SIZE, font_family
 from game.pygame_.Object import Object
 
 
@@ -20,7 +20,7 @@ class PyGUnit(Object, Unit):
 
     def draw(self, surface, pos=None):
         if self.get_level() != 0:
-            f1 = pygame.font.SysFont('comicsans', 28)
+            f1 = pygame.font.Font(font_family, 18)
             text_level = f1.render('lvl:{}'.format(self.get_level()), 1, (50, 50, 50))
             text_name = f1.render('{}'.format(self.player), 1, (50, 50, 50))
 

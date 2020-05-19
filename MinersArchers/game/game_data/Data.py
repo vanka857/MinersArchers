@@ -2,6 +2,7 @@ import json
 
 import game.game_data.cells.Cell as cell
 import game.game_data.units.Unit as unit
+from static import resource_path, config_path
 
 
 class Data:
@@ -18,7 +19,7 @@ class Data:
         self.selected = None
         self.hovered = None
 
-        with open("game/players.json", "r") as read_file:
+        with open(config_path("players.json"), "r") as read_file:
             json_players = json.load(read_file)
 
         name_1 = json_players["PLAYER_1"]["name"]
