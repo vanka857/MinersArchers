@@ -1,28 +1,18 @@
 import pygame
 
 from game.logs.Logs import Logs
+from game.pygame_ import CELL_HEIGHT, CELL_WIDTH, CELL_SIZE, UNIT_WIDTH, UNIT_HEIGHT
 
 log = Logs()
 
-# размер одной ячейки(квадратной) в пикселях
-CELL_SIZE = 202
-UNIT_SIZE = 100
-
-CELL_HEIGHT = CELL_SIZE
-CELL_WIDTH = CELL_SIZE
-
-UNIT_HEIGHT = UNIT_SIZE
-UNIT_WIDTH = UNIT_SIZE
-
-
-# класс, где реализован ввод + ввывод + обработка некоторых команд на pygame
+# класс, где реализован ввод + ввывод + обработка некоторых команд на pygame_
 class PyGame:
 
     def __init__(self):
         pygame.init()
         # просто создаем переменную
         self.__screen = None
-        
+
         self.w = None
         self.h = None
         log.mprint("PyGame initialized")
@@ -52,11 +42,11 @@ class PyGame:
             return None
 
         # если нажали на что-то в последнем стоблике, значит, это команда
-        if x_field == int(self.w/CELL_SIZE) - 1:
+        if x_field == int(self.w / CELL_SIZE) - 1:
             return (y_field, x_field), "action"
 
         # иначе определяем cell это или unit
-        if x_field * CELL_WIDTH + (CELL_WIDTH - UNIT_WIDTH) / 2 < x < x_field * CELL_WIDTH +\
+        if x_field * CELL_WIDTH + (CELL_WIDTH - UNIT_WIDTH) / 2 < x < x_field * CELL_WIDTH + \
                 UNIT_WIDTH + (CELL_WIDTH - UNIT_WIDTH) / 2:
             if y_field * CELL_HEIGHT + (CELL_HEIGHT - UNIT_HEIGHT) / 2 < y < y_field * CELL_HEIGHT \
                     + UNIT_HEIGHT + (CELL_HEIGHT - UNIT_HEIGHT) / 2:
