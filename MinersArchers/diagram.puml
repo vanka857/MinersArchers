@@ -182,7 +182,6 @@ class Command{
     + clear()
 }
 
-Command --o PyGameDispatcher
 
 PyGameDispatcher ----o Game
 PyGameDisplay ----o Game
@@ -204,11 +203,13 @@ class Controller{
 }
 
 Data -o Controller
-Controller <-- Dispatcher
-Controller o-- Command
+Controller <- Dispatcher
+Controller <- Display
+Controller o- Command
+
 
 Unit o-------- Data
-Cell o--------- Data
+Cell o-------- Data
 
 Controller ----o Game
 
