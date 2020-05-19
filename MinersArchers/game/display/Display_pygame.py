@@ -125,6 +125,7 @@ class PyGameDisplay(Display):
 
         if self.data.hovered:
             # если мышка над кнопкой, нужно как-то выделить кнопку
+            self.create_buttons_layer()
             coord = self.data.hovered[0]
             y = coord[0]
             button = pygame.image.load(PICS_pygame["buttonHovered"]).convert_alpha()
@@ -158,6 +159,7 @@ class PyGameDisplay(Display):
             if name == "action" and self.data.hovered:
                 # если кликнута кнопка
                 # нужно вывести нажатую кнопку
+                self.create_buttons_layer()
                 coord = self.data.selected[0]
                 y = coord[0]
                 button = pygame.image.load(PICS_pygame["buttonSelected"]).convert_alpha()
