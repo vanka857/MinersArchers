@@ -1,4 +1,3 @@
-import json
 import os
 import sys
 
@@ -12,12 +11,7 @@ def resource_path(relative_path):
 
 def config_path(relative_path):
     """ Get absolute path to resource, works for dev and for PyInstaller """
-    result = join(join("static", "config"), relative_path)
-    with open(result, "r") as read_file:
-        json_players = json.load(read_file)
-    print(json_players)
-    print("returning: " + result)
-    return result
+    return join(join("static", "config"), relative_path)
 
 
 def get_path():
