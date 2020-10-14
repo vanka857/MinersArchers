@@ -1,0 +1,10 @@
+{
+  "PLAYER_1" : {
+    "name": "Egor",
+    "score": 30
+  },
+  "PLAYER_2" : {
+    "name": "Ivan",
+    "score": 30
+  }
+}
