@@ -3,190 +3,68 @@
 import pygame
 
 from game.display.Display import Display
-from game.game_data import PyGame
+from game.game_data.cells.Cell_pygame import CELL_SIZE
+from game.game_data.field.Field_pygame import PyGCells, PyGUnits
+from game.game_data.units.Unit_pygame import UNIT_SIZE
 from game.logs.Logs import Logs
+from game.pygame_ import PICS_pygame
+from game.pygame_.Group import Group
+from game.pygame_.Object import Object
 
 # устанавливаем цвет логов
 log = Logs("Yellow")
 
-# размер одной ячейки(квадратной) в пикселях
-CELL_SIZE = PyGame.CELL_SIZE
-UNIT_SIZE = PyGame.UNIT_SIZE
-
 TOOLBAR_HEIGHT = 70
 COLOR = (100, 100, 100)
 RED = (200, 0, 0)
-# словарь с картинками
-PICS = {"mines": "pics/Mine.png",
-        "barrack": "pics/Barrack.png",
-        0: "pics/Valley.png",
-        1: "pics/Mountain.png",
-        "archers": "pics/Archer.png",
-        "warriors": "pics/Warrior.png",
-        "miners": "pics/Miner.png",
-        "unit": "pics/Frame_unit.png",
-        "cell": "pics/Frame_cell.png",
-        "action": "pics/Frame_cell.png",
-        "button": "pics/button.png",
-        "buttonHovered": "pics/buttonHovered.png",
-        "buttonSelected": "pics/buttonSelected.png",
-        "emblem0": "pics/Emblem0.png",
-        "emblem1": "pics/Emblem1.png",
-        "coins": "pics/Coins.png"}
 
-
-class PyGCells:
-
-    def __init__(self, cells):
-        n = 0
-
-        self.cells = list()
-        self.cell_id_on_coord = dict()
-
-        for i in range(len(cells)):
-            for j in range(len(cells[i])):
-                # create PyGCell from cell[i][j] (class game_data.Cell)
-                # and append it to self.cells (class PyGCell)
-                # меняем координаты местами. Так удобнее будет в pygame.
-                # Сначала позиция по горизонтали(ширине),
-                # потом - по вертикали(высоте)
-                pyg_cell = PyGCell(cells[i][j], n, j, i)
-                self.cells.append(pyg_cell)
-                # меняем координаты местами. Так удобнее будет в pygame.
-                # Сначала позиция по горизонтали(ширине),
-                # потом - по вертикали(высоте)
-                self.cell_id_on_coord[(j, i)] = n
-                n += 1
-
-    def create_coord_for_cell(self, x, y):
-        return CELL_SIZE * x, CELL_SIZE * y
-
-    def render(self, dest):
-        for pyg_cell in self.cells:
-            dest.blit(pyg_cell.surf, self.create_coord_for_cell(pyg_cell.x, pyg_cell.y))
-
-
-class PyGCell(pygame.sprite.Sprite):
-    def __init__(self, cell, id__, x_, y_):
-        self.id_ = id__
-        self.x = x_
-        self.y = y_
-        super().__init__()
-        self.surf = pygame.Surface((CELL_SIZE, CELL_SIZE))
-
-        # пока что расставляем текстуры в шахматном порядке
-        internal = pygame.image.load(PICS[(self.x + self.y) % 2]).convert_alpha()
-
-        self.surf.blit(internal, (CELL_SIZE * 0, CELL_SIZE * 0))
-        self.rect = self.surf.get_rect()
-
-
-class PyGUnits:
-
-    def __init__(self, units):
-        n = 0
-
-        self.units = list()
-        self.units_id_on_coord = dict()
-
-        # перевод словаря из юнитов из game_data в двмумерный список
-        for (i_, j_) in units.keys():
-            unit = units[(i_, j_)]
-            pyg_unit = PyGUnit(unit, j_, i_, unit.level, n)
-
-            self.units.append(pyg_unit)
-            self.units_id_on_coord[(j_, i_)] = pyg_unit
-            n += 1
-
-    def create_coord_for_unit(self, x, y):
-        return CELL_SIZE * x + (CELL_SIZE - UNIT_SIZE) / 2, CELL_SIZE * y + (CELL_SIZE - UNIT_SIZE) / 2
-
-    def render(self, dest):
-        for pyg_unit in self.units:
-            dest.blit(pyg_unit.surf, self.create_coord_for_unit(pyg_unit.x, pyg_unit.y))
-
-
-class PyGUnit(pygame.sprite.Sprite):
-
-    def __init__(self, unit, x_, y_, level, id__):
-        self.id_ = id__
-        self.level = level
-        self.x = x_
-        self.y = y_
-        super().__init__()
-        self.surf = pygame.Surface((UNIT_SIZE, UNIT_SIZE), flags=pygame.SRCALPHA)
-        self.surf.fill(0)
-
-        if self.level == 0:
-            internal = pygame.Surface((UNIT_SIZE, UNIT_SIZE), flags=pygame.SRCALPHA)
-            internal.fill(0)
-        else:
-            internal = pygame.image.load(PICS[unit.type]).convert_alpha()
-
-        self.surf.blit(internal, (UNIT_SIZE * 0, UNIT_SIZE * 0))
-
-        if unit.player != "died":
-            f1 = pygame.font.SysFont('comicsans', 28)
-            text_level = f1.render('lvl:{}'.format(unit.get_level()), 1, (50, 50, 50))
-            self.surf.blit(text_level, (UNIT_SIZE * 0.1 - 5, UNIT_SIZE * 0.8 - 7))
-
-
-# кнопкиииииии
+# кнопки
 av_but_com = {0: "attack", 1: "move", 2: "create", 3: "upgrade"}
 
 
-class PyGButtons(pygame.sprite.Sprite):
+class PyGButtons(Group):
     def __init__(self):
         self.buttons = list()
-        button = pygame.image.load(PICS["button"]).convert_alpha()
-        buttonH = pygame.image.load(PICS["buttonHovered"]).convert_alpha()
-        buttonS = pygame.image.load(PICS["buttonSelected"]).convert_alpha()
+        button = pygame.image.load(PICS_pygame["button"]).convert_alpha()
+        button_h = pygame.image.load(PICS_pygame["buttonHovered"]).convert_alpha()
+        button_s = pygame.image.load(PICS_pygame["buttonSelected"]).convert_alpha()
 
         for i in range(len(av_but_com)):
             self.buttons.append(
-                Button(0, i * CELL_SIZE, CELL_SIZE, CELL_SIZE, button, buttonH, buttonS, av_but_com[i]))
+                Button(0, i * CELL_SIZE, CELL_SIZE, CELL_SIZE, button, button_h, button_s, av_but_com[i]))
 
-    def render(self, dest):
-        for i in range(self.buttons.__len__()):
-            self.buttons[i].draw(dest, i)
+        Group.__init__(self, self.buttons)
 
 
-class Button:
+class Button(Object):
     def __init__(self, x, y, width, height, image, hovered_image, selected_image, text=''):
-        self.x = x
-        self.y = y
-        self.width = width
-        self.height = height
+        Object.__init__(self, 0, x, y, width, height)
+        self.load_image(image, pygame.SRCALPHA)
+
         self.text = text
+
         self.image = image
         self.hovered_image = hovered_image
         self.selected_image = selected_image
         self.selected = False
         self.hovered = False
 
-    def draw(self, surface, i):
-
-        # surface.fill((255,255,255,255))
+    def draw(self, surface: pygame.Surface, pos=None):
 
         if self.selected:
-            surface.blit(self.selected_image, (0, CELL_SIZE * i))
-
+            self.load_image(self.selected_image, pygame.SRCALPHA)
         elif self.hovered:
-            surface.blit(self.hovered_image, (0, CELL_SIZE * i))
-
+            self.load_image(self.hovered_image, pygame.SRCALPHA)
         else:
-            surface.blit(self.image, (0, CELL_SIZE * i))
+            self.load_image(self.image, pygame.SRCALPHA)
 
         if self.text != '':
             font = pygame.font.SysFont('comicsans', 35)
             text = font.render(self.text, 1, (77, 77, 77))
-            surface.blit(text, (
-                self.x + (self.width / 2 - text.get_width() / 2 + 2),
-                self.y + (self.height / 2 - text.get_height() / 2) - 5))
+            self.draw_on_me(text, ((self._width / 2 - text.get_width() / 2 + 2),
+                                   (self._height / 2 - text.get_height() / 2) - 5))
 
-
-class PyGBuilding(pygame.sprite.Sprite):
-    pass
+        super().draw(surface, (0, self._y_pix))
 
 
 class PyGameDisplay(Display):
@@ -196,11 +74,13 @@ class PyGameDisplay(Display):
         self.data = None
         self.queue = queue
         self.py_game = py_game_
-        # столбец для кнопок
+
         self.field_w = w * CELL_SIZE
         self.field_h = h * CELL_SIZE
         self.xCells = w
         self.yCells = h
+
+        # столбец для кнопок
         self.w = (w + 1) * CELL_SIZE
         self.h = h * CELL_SIZE + TOOLBAR_HEIGHT
         self.py_game.init_screen(self.w, self.h)
@@ -284,7 +164,7 @@ class PyGameDisplay(Display):
 
         if self.redraw_buttons:
             self.redraw_buttons = False
-            self.draw("buttons")  # , "toolbar")
+            self.draw("buttons")
 
         if selected_button is not None:
             self.redraw_buttons = True
@@ -295,8 +175,9 @@ class PyGameDisplay(Display):
             self.pyg_buttons.buttons[hovered_button].hovered = False
 
         if bordered_type is not None:
-            self.draw("frame")  # , "toolbar")
-            frame = pygame.image.load(PICS[bordered_type]).convert_alpha()
+            self.draw("frame")
+            name = {"cell": "cell_frame", "unit": "unit_frame"}[bordered_type]
+            frame = pygame.image.load(PICS_pygame[name]).convert_alpha()
             self.__frame_layer.blit(frame, positions_to_blit(bordered_x, bordered_y)[bordered_type])
 
         self.screen.blit(self.__field_layer, (0, 0))
@@ -362,13 +243,14 @@ class PyGameDisplay(Display):
         # их отрисовка
         self.pyg_cells.render(self.__field_layer)
 
+    # отрисовка toolbar
     def create_toolbar_layer(self):
         if self.__toolbar_layer is None:
             self.__toolbar_layer = pygame.Surface((self.w, TOOLBAR_HEIGHT))
 
-        score_pic = pygame.image.load(PICS["coins"]).convert_alpha()
-        embl1 = pygame.image.load(PICS["emblem0"]).convert_alpha()
-        embl2 = pygame.image.load(PICS["emblem1"]).convert_alpha()
+        score_pic = pygame.image.load(PICS_pygame["coins"]).convert_alpha()
+        emblem1 = pygame.image.load(PICS_pygame["emblem0"]).convert_alpha()
+        emblem2 = pygame.image.load(PICS_pygame["emblem1"]).convert_alpha()
         # для подстветки чувака который сейчас ходит
         color1 = RED
         color2 = COLOR
@@ -388,8 +270,8 @@ class PyGameDisplay(Display):
 
         self.__toolbar_layer.blit(name1, (8, 13))
         self.__toolbar_layer.blit(score_pic, (CELL_SIZE, 0))
-        self.__toolbar_layer.blit(embl1, (CELL_SIZE * 2 + 12, 8))
+        self.__toolbar_layer.blit(emblem1, (CELL_SIZE * 2 + 12, 8))
 
         self.__toolbar_layer.blit(name2, (CELL_SIZE * 3 + 10, 13))
         self.__toolbar_layer.blit(score_pic, (CELL_SIZE * 4, 0))
-        self.__toolbar_layer.blit(embl2, (CELL_SIZE * 5 + 5, 6))
+        self.__toolbar_layer.blit(emblem2, (CELL_SIZE * 5 + 5, 6))

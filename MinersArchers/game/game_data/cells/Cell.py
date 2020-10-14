@@ -6,8 +6,13 @@ class Cell:
     _building = "none"
     _inp_player = "none"
 
-    def __init__(self, relief=0):
-        _relief = relief
+    def __init__(self, y, x, relief=0):
+        self._relief = relief
+        self._y = y
+        self._x = x
+
+    def get_coords(self):
+        return self._y, self._x
 
     def set_player(self, inp_player):
         self._inp_player = inp_player
@@ -17,7 +22,7 @@ class Cell:
         return result
 
     def build(self, building_type, inp_level, inp_player):
-        #check
+        # check
         self._building = UCI.create_building(building_type, inp_level, inp_player)
 
 

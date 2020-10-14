@@ -1,6 +1,7 @@
 # coding=utf-8
 import inspect
 
+
 # Класс для вывода логов в консоль. Выводится в таком формате цветным текстом:
 # [PYGAMEDISPATCHER.PY]: key command sent
 

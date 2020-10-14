@@ -1,0 +1,212 @@
+@startuml
+
+class Sprite{}
+Sprite <|-- Object
+
+package Object{
+    abstract class Object{
+        # x
+        # y
+        # height
+        # width
+        # image
+        # surf
+        # rect
+        + load_image()
+        # selected
+        # hovered
+        + draw(surface, pos)
+        + get_coordinates()
+        + get_size()
+        + select(selected=true)
+        + hover(hovered=true)
+    }
+
+    Object <|---down PyGUnit
+    class PyGUnit{
+        + PygUnit(Unit)
+        + draw(surface, pos)
+        + create_coordinates(x, y)
+    }
+
+    Object <|--- PyGCell
+    class PyGCell {
+        + PygCell(Cell)
+        + draw(surface, pos)
+        + create_coordinates(x, y)
+    }
+
+    Object <|--- Button
+    class Button {
+        + draw(surface, pos)
+    }
+}
+
+Unit <|------ PyGUnit
+package Unit {
+    abstract class Unit{
+        # x
+        # y
+        # type
+        # level
+        # player
+        # actions[]
+
+        + Unit(type, level, position)
+        + get_cords()
+        + get_player()
+        + get_level()
+        + get_actions() : list()
+    }
+
+    Unit <|-- Warrior
+    class Warrior {
+        + def attack()
+    }
+
+    Unit <|-- Archer
+    class Archer {
+        + def attack()
+    }
+
+    Unit <|-- Miner
+    class Miner {
+        + collect()
+    }
+
+    abstract class UnitCreator{
+        + create_unit()
+    }
+
+    abstract class Creator{}
+
+    Unit . UnitCreator
+    UnitCreator -|> Creator
+}
+
+package Cell{
+    Cell <|---- PyGCell
+    class Cell {
+        # position
+        # player
+        # buildings
+     }
+}
+
+class SpriteGroup{}
+SpriteGroup <|-- Group
+
+package Group{
+    abstract class Group{
+        - objects[] : list
+        + add_object(object) override
+        + update(differences)
+        + get_dif(old_hash)
+        + render(surface) override
+    }
+
+    package Field_pygame {
+        class PyGCells {}
+        PyGCell ---[hidden]--o PyGCells : 1..n
+        Group <|--- PyGCells
+
+        class PyGUnits {}
+        Group <|--- PyGUnits
+        PyGUnit ---[hidden]--o PyGUnits : 1..n
+    }
+
+    class PyGButtons {}
+    Button ---[hidden]--o PyGButtons : 1..n
+    Group <|--- PyGButtons
+
+}
+
+
+interface Display{
+    + update()
+    + set_data()
+    + draw()
+}
+
+class PyGameDisplay {
+    - pyg_units : PygUnits
+    - pyg_cells : PygCells
+    - pyg_buttons :PyGButtons
+    - units_layer
+    - field_layer
+    - buttons_layer
+    - toolbar_layer
+    + update()
+    + draw()
+    - create_units_layer()
+    - create_field_layer()
+    - create_buttons_layer()
+    - create_toolbar_layer()
+}
+
+PyGUnits ---o PyGameDisplay
+PyGCells ---o PyGameDisplay
+PyGButtons ---o PyGameDisplay
+
+
+class Game {
+    - contoller
+    - game_data
+    - event_dispatcher
+    - display
+    - start()
+    - change_player()
+    - do_action()
+}
+
+Display <|... ConsoleDisplay
+Display <|... PyGameDisplay
+
+interface Dispatcher{
+    +check_new_commands()
+}
+
+class PyGameDispatcher{
+    -command
+    -queue
+    -check_new_commands()
+}
+
+Dispatcher <|... PyGameDispatcher
+Dispatcher <|... ConsoleDispatcher
+
+class Command{
+    + set_command()
+    + append_coords()
+    + finish()
+    + clear()
+}
+
+Command --o PyGameDispatcher
+
+PyGameDispatcher ----o Game
+PyGameDisplay ----o Game
+
+class Data{
+    - units
+    - cells
+    - score
+}
+
+class Controller{
+    - game_data
+    -  main_control()
+    - create()
+    - attack()
+    - move()
+    - upgrade()
+    - build()
+}
+Data --o Controller
+
+Unit o-------- Data
+Cell o--------- Data
+
+Controller ----o Game
+
+@enduml
